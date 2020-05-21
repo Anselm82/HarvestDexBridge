@@ -1,0 +1,2 @@
+rootProject.name='HarvestDexBridge'
+include ':app'
