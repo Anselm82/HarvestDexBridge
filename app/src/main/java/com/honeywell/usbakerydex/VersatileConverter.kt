@@ -1,8 +1,20 @@
 package com.honeywell.usbakerydex
 
+import com.honeywell.usbakerydex.versatiledex.utils.InvalidValueException
+import com.honeywell.usbakerydex.versatiledex.utils.VersatileAdjustmentFlag
+import com.honeywell.usbakerydex.versatiledex.utils.VersatileInvoiceAdjustmentFlag
 import org.json.JSONObject
 
+fun VersatileInvoiceAdjustmentFlag.toVersatileAdjustmentFlag() : VersatileAdjustmentFlag {
+    return when(this) {
+        VersatileInvoiceAdjustmentFlag.TOTAL -> VersatileAdjustmentFlag.TOTAL
+        VersatileInvoiceAdjustmentFlag.PERCENTAGE -> VersatileAdjustmentFlag.PERCENTAGE
+        else -> throw InvalidValueException("Flag")
+    }
+}
+
 enum class HoneywellSections(val value: String) {
+
     CONFIG("config"),
     TRANSACTION("transaction"),
     TRANSMISSION_CONTROL_NUMBER("transmissioncontrolnumber"),
@@ -23,17 +35,5 @@ class VersatileConverter {
         }
         return null
     }
-
-    fun jsonToVersatileString(jsonObject: JSONObject) : String {
-        var result = extractVendorSection(jsonObject)
-        return result
-    }
-
-    private fun extractVendorSection(jsonObject: JSONObject): String {
-        return ""
-    }
-
-
-
 }
 

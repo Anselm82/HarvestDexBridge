@@ -1,8 +1,14 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
-data class Vendor(private var route: String?, private var name: String?, private val duns: String, private val location: String, private val commId: String, private val dexVersion: String) {
+import com.honeywell.usbakerydex.versatiledex.utils.*
+import com.honeywell.usbakerydex.versatiledex.utils.isAlphanumeric
+import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
+
+data class Vendor(private var route: String?, private var name: String?, private val duns: String,
+                  private val location: String, private val commId: String, private val dexVersion: String) {
 
     companion object {
+        const val SECTION = "Vendor"
         const val ROUTE = "ROUTE"
         const val NAME = "NAME"
         const val DUNS = "DUNS"
@@ -18,7 +24,7 @@ data class Vendor(private var route: String?, private var name: String?, private
     private fun validCommId() = commId.validLength(10) && commId.isNumeric()
     private fun validDexVersion() = dexVersion.validLength(4) && dexVersion.isNumeric()
 
-    private fun isMandatoryDataSetAndValid() = validDuns() && validCommId() && validDexVersion() && validLocation()
+    private fun isMandatoryDataSetAndValid() = validDuns() && validCommId() && validLocation()
 
     override fun toString(): String {
         if(isMandatoryDataSetAndValid()) {
@@ -27,13 +33,13 @@ data class Vendor(private var route: String?, private var name: String?, private
                 vendor += "$ROUTE \"$route\"$NEW_LINE"
             if (validName())
                 vendor += "$NAME \"$name\"$NEW_LINE"
-            vendor += "$DUNS \"$duns\"$NEW_LINE"
+            vendor += "$DUNS $duns$NEW_LINE"
             vendor += "$LOCATION \"$location\"$NEW_LINE"
-            vendor += "$COMM_ID \"$commId\"$NEW_LINE"
-            vendor += "$DEX_VERSION \"$dexVersion\"$NEW_LINE"
+            vendor += "$COMM_ID $commId$NEW_LINE"
+            if(validDexVersion())
+                vendor += "$DEX_VERSION $dexVersion$NEW_LINE"
             return vendor
-        } else {
-            throw MandatoryFieldException()
-        }
+        } else
+            throw MandatoryFieldException(SECTION)
     }
 }
