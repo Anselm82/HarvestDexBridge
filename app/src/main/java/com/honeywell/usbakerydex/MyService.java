@@ -56,13 +56,7 @@ public class MyService extends Service {
     public static final UUID DEX_CHARACTERISTIC_DATA = UUID.fromString("F000C0E1-0451-4000-B000-000000000000");
     /* access modifiers changed from: private */
     public static final UUID DEX_SERVICE_SPP = UUID.fromString("F000C0E0-0451-4000-B000-000000000000");
-    private final String BATTERY_PRE = "battery:";
-    /* access modifiers changed from: private */
     public final StringBuilder DataReadOperationSync = new StringBuilder();
-    private final int INDEX_FIRMWARE = 2;
-    private final String MODULE_SPI_PARAM_APP_START_INTENT_PARAMS_JSON = "JSON";
-    private final String TAG = "DEX";
-    private boolean bDexInited = false;
     private String blebatteryinfo = null;
     private String blerevisioninfo = null;
     /* access modifiers changed from: private */
@@ -86,6 +80,7 @@ public class MyService extends Service {
     /* access modifiers changed from: private */
     public JSONObject jsonObject;
     String jsonString = "";
+
     private LeScanCallback mBLEScanCallback = new LeScanCallback() {
         public void onLeScan(final BluetoothDevice bluetoothDevice, int i, byte[] bArr) {
             new Thread(new Runnable() {
@@ -322,6 +317,7 @@ public class MyService extends Service {
                             return;
                         }
                     }
+
                     if (MyService.this.evtSrcId == 7363 || MyService.this.evtSrcId == 7328) {
                         Log.d("DEX", "Defining & Starting DEXThread");
                         MyService.this.dexThread = new DEXThread();
@@ -830,6 +826,7 @@ public class MyService extends Service {
         synchronized (this) {
             j = -1;
             try {
+                //DSX: [01-06], invoices: invoiceid as key,
                 String ignoreCase = getIgnoreCase(jSONObject, "dxs");
                 if (ignoreCase != null) {
                     Log.i("DEX", "WriteDXSSegment()");
@@ -1103,6 +1100,7 @@ public class MyService extends Service {
                         j2 = this.objDex.SellByEach(intValue, jSONObject3.getDouble("02"), (!jSONObject3.has("04") || jSONObject3.getString("04").isEmpty()) ? "" : jSONObject3.getString("04"), (!jSONObject3.has("08") || jSONObject3.getString("08").isEmpty()) ? 0.0d : jSONObject3.getDouble("08"), (!jSONObject3.has("10") || jSONObject3.getString("10").isEmpty()) ? "" : jSONObject3.getString("10"), (!jSONObject3.has("06") || jSONObject3.getString("06").isEmpty()) ? "" : jSONObject3.getString("06"));
                     } else {
                         jSONObject2 = jSONObject3;
+
                         if (jSONObject2.length() <= 3) {
                             Log.i("DEX", String.format("WriteG89Segment - AdjustItem() - Sequence Number: %s", new Object[]{format}));
                             j2 = this.objDex.AdjustItem(intValue, (!jSONObject2.has("02") || jSONObject2.getString("02").isEmpty()) ? -1.0d : jSONObject2.getDouble("02"), (!jSONObject2.has("08") || jSONObject2.getString("08").isEmpty()) ? -1.0d : jSONObject2.getDouble("08"));
@@ -1285,6 +1283,8 @@ public class MyService extends Service {
         }
     }
 
+    //Intent extra : JSON
+    // initialization: evtSrcId (int), synchType (int)
     private void setDexParams(Intent intent, int i) {
         Log.i("DEX", "setDexParams()");
         String str = "DEX";

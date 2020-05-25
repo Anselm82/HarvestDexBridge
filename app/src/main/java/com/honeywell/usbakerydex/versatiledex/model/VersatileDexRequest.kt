@@ -1,6 +1,6 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
-data class VersatileDEXRequest(val vendor: Vendor, val stops: List<Stop>) {
+data class VersatileDexRequest(val vendor: Vendor, val stops: List<Stop>) {
 
     override fun toString(): String {
         var message = ""
