@@ -1,6 +1,5 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
-import com.honeywell.usbakerydex.toVersatileAdjustmentFlag
 import com.honeywell.usbakerydex.versatiledex.utils.*
 
 data class InvoiceAdjustment(

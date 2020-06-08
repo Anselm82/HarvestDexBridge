@@ -1,7 +1,9 @@
 package com.honeywell.usbakerydex.versatiledex.utils
 
-import com.honeywell.usbakerydex.VersatileConverter
+import com.honeywell.usbakerydex.versatiledex.VersatileConverter
 import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 const val NEW_LINE = "\n"
 const val EMPTY_SPACE = " "
@@ -12,14 +14,6 @@ class MandatoryFieldException(section: String) :
     Exception("A value in $section is missing or invalid.")
 
 class InvalidValueException(section: String) : Exception("Error when parsing a value in $section.")
-
-enum class HoneywellSections(val value: String) {
-    CONFIG("config"),
-    TRANSACTION("transaction"),
-    INITIALIZATION("initialization"),
-    TRANSMISSION_CONTROL_NUMBER("transmissioncontrolnumber"),
-    TRANSACTION_CONTROL_NUMBER("transactionsetcontrolnumber")
-}
 
 class VersatileResponseParams {
     companion object {
@@ -97,7 +91,7 @@ enum class VersatileResponseCode(val value: String) {
     SVR("SVR")
 }
 
-enum class VersatilePackType(value: String) {
+enum class VersatilePackType(val value: String) {
     CASE("CA"),
     EACH("EA")
 }
@@ -115,7 +109,13 @@ enum class VersatileAdjustmentType(val value: Char) {
 enum class VersatileHandlingCode(val value: String) {
     BILL_BACK("01"),
     OFF_INVOICE("02"),
-    INFO_ONLY("15")
+    INFO_ONLY("15");
+
+    companion object {
+        fun fromValue(value: String): VersatileHandlingCode {
+            return values().first { value.equals(it.value, true) }
+        }
+    }
 }
 
 enum class VersatileInvoiceAdjustmentFlag(val value: Char) {
@@ -129,14 +129,31 @@ enum class VersatileAdjustmentFlag(val value: Char) {
     RATE_PER_QUANTITY('$')
 }
 
+internal fun Long.toYYYYMMDD() = SimpleDateFormat("YYYYMMDD", Locale.US).format(this)
+
 internal fun String.extractVersatileBooleanValue(): String {
     val char = this.substring(0, 1)
     val trueValue = arrayOf("T", "Y", "0")
-    return if (trueValue.indexOf(char.toUpperCase()) > 0) "Y" else "N"
+    return if (trueValue.indexOf(char.toUpperCase(Locale.US)) > 0) "Y" else "N"
+}
+
+internal fun VersatileInvoiceAdjustmentFlag.toVersatileAdjustmentFlag(): VersatileAdjustmentFlag {
+    return when (this) {
+        VersatileInvoiceAdjustmentFlag.TOTAL -> VersatileAdjustmentFlag.TOTAL
+        VersatileInvoiceAdjustmentFlag.PERCENTAGE -> VersatileAdjustmentFlag.PERCENTAGE
+    }
+}
+
+internal fun paddingWithZero(number: String, fixedLenght: Int) : String {
+    var text = number
+    while(text.length < fixedLenght) {
+        text = "0$text"
+    }
+    return text
 }
 
 internal fun String.isAlphanumeric(): Boolean {
-    val alphanumericExpression = "^[a-zA-Z0-9 ]+\$".toRegex()
+    val alphanumericExpression = "^[a-zA-Z0-9 {}]+\$".toRegex()
     return (this.matches(alphanumericExpression))
 }
 
@@ -146,13 +163,25 @@ internal fun String.isAlphabetical(): Boolean {
 }
 
 internal fun String.isNumeric(): Boolean {
-    val numericExpression = "^[0-9][.]+\$".toRegex()
-    return (this.matches(numericExpression))
+    return try {
+        this.toDouble()
+        true
+    } catch (e: Exception) {
+        false
+    }
+    //val numericExpression = "^[0-9][.]+\$".toRegex()
+    //return (this.matches(numericExpression))
 }
 
 internal fun String.isDecimal(): Boolean {
-    val decimalExpression = "^\\d+(\\.\\d{1,2})?\$".toRegex()
-    return (this.matches(decimalExpression))
+    return try {
+        this.toDouble()
+        true
+    } catch (e: Exception) {
+        false
+    }
+    //val decimalExpression = "^\\d+(\\.\\d{1,2})?\$".toRegex()
+    //return (this.matches(decimalExpression))
 }
 
 internal fun String.isBoolean(): Boolean {
@@ -171,6 +200,8 @@ internal fun String.validLength(min: Int, max: Int): Boolean {
         return true
     return this.length in min..max
 }
+
+internal fun String.cleanUCS() = this.toUpperCase(Locale.US).replace("UCS", "")
 
 fun main(args: Array<String>) {
     val response = "140701:015830 894:USR 1007 ADJ_QTY 2 1 2\n" +

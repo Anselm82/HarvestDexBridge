@@ -22,7 +22,7 @@ data class Vendor(private var route: String?, private var name: String?, private
     private fun validDuns() = duns.validLength(9) && duns.isNumeric()
     private fun validLocation() = location.validLength(6) && location.isAlphanumeric()
     private fun validCommId() = commId.validLength(10) && commId.isNumeric()
-    private fun validDexVersion() = dexVersion.validLength(4) && dexVersion.isNumeric()
+    private fun validDexVersion() = dexVersion.cleanUCS().toInt().toString().validLength(4) && dexVersion.cleanUCS().isNumeric()
 
     private fun isMandatoryDataSetAndValid() = validDuns() && validCommId() && validLocation()
 
@@ -33,12 +33,12 @@ data class Vendor(private var route: String?, private var name: String?, private
                 vendor += "$ROUTE \"$route\"$NEW_LINE"
             if (validName())
                 vendor += "$NAME \"$name\"$NEW_LINE"
-            vendor += "$DUNS $duns$NEW_LINE"
+            vendor += "$DUNS ${paddingWithZero(duns,9)}$NEW_LINE"
             vendor += "$LOCATION \"$location\"$NEW_LINE"
             vendor += "$COMM_ID $commId$NEW_LINE"
             if(validDexVersion())
-                vendor += "$DEX_VERSION $dexVersion$NEW_LINE"
-            return vendor
+                vendor += "$DEX_VERSION ${dexVersion.cleanUCS().toInt()}$NEW_LINE"
+            return "$vendor$NEW_LINE"
         } else
             throw MandatoryFieldException(SECTION)
     }

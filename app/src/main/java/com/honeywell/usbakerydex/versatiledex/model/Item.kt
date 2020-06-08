@@ -27,12 +27,12 @@ data class Item(val dexVersion: String = "5010", val itemCode: String, val caseC
         return validItemCode() && validCaseCode() && validCaseCount() && validItemsByCase()
     }
 
-    private fun validItemCode() = if(dexVersion.toInt() >= 5010) //GTIN
+    private fun validItemCode() = if(dexVersion.cleanUCS().toInt() >= 5010) //GTIN
             itemCode.validLength(8, 14) && itemCode.isNumeric()
         else //UPC
             itemCode.validLength(10, 12) && itemCode.isNumeric()
 
-    private fun validCaseCode() = if(caseCode.isNullOrBlank()) true else validItemCode() && !caseCode.isNullOrBlank() && if(dexVersion.toInt() >= 5010) //GTIN
+    private fun validCaseCode() = if(caseCode.isNullOrBlank()) true else validItemCode() && !caseCode.isNullOrBlank() && if(dexVersion.cleanUCS().toInt() >= 5010) //GTIN
         caseCode.validLength(8, 14) && caseCode.isNumeric()
     else //UPC
         caseCode.validLength(10, 12) && caseCode.isNumeric()
@@ -57,27 +57,30 @@ data class Item(val dexVersion: String = "5010", val itemCode: String, val caseC
 
     private fun validPackType() = VersatilePackType.values().contains(packType)
 
-    private fun isMandatoryDataSetAndValid() = validItem() && validDescription() && validQuantity() && validPrice() && validPackType()
+    private fun isMandatoryDataSetAndValid() = validItem() && validQuantity() && validPrice() && validPackType()
 
     override fun toString(): String {
         if(isMandatoryDataSetAndValid()) {
             var item = ""
-            item += if (dexVersion.toInt() >= 5010) "$GTIN $itemCode $caseCode $caseCount $itemsByCase$NEW_LINE" else "$UPC $itemCode $caseCode $caseCount $itemsByCase$NEW_LINE"
-            item += "$DESCRIPTION $description$NEW_LINE"
-            item += "$QUANTITY $quantity$NEW_LINE"
-            item += "$PRICE $price$NEW_LINE"
-            item += "$PACK_TYPE $packType$NEW_LINE"
-            if(validAdjustments() && itemAdjustments.isNullOrEmpty())
-                item += itemAdjustments!!.joinToString { adjustment -> adjustment.toString() }
             if(validSku())
                 item += "$SKU $sku$NEW_LINE"
+            item += if (dexVersion.cleanUCS().toInt() >= 5010) "$GTIN $itemCode $caseCode $caseCount $itemsByCase$NEW_LINE" else "$UPC $itemCode $caseCode $caseCount $itemsByCase$NEW_LINE"
+            if(validDescription())
+                item += "$DESCRIPTION \"$description\"$NEW_LINE"
+            else if(validSku())
+                item += "$DESCRIPTION \"$sku\"$NEW_LINE"
+            else
+                item += "$DESCRIPTION \"NO DESCRIPTION\"$NEW_LINE"
+            item += "$QUANTITY $quantity$NEW_LINE"
+            item += "$PRICE $price$NEW_LINE"
+            item += "$PACK_TYPE ${packType.value}$NEW_LINE"
+            if(validAdjustments() && !itemAdjustments.isNullOrEmpty())
+                item += itemAdjustments.joinToString("\n") { adjustment -> adjustment.toString() }
             if(validPreserveCost())
                 item += "$PRESERVE_COST $preserveCost$NEW_LINE"
-            if(!itemAdjustments.isNullOrEmpty())
-                item += itemAdjustments.joinToString { itemAdjustment -> itemAdjustment.toString() }
-            return item
+           return item
         } else {
-            throw MandatoryFieldException(SECTION)
+            throw MandatoryFieldException("$SECTION: ${validItem()}, ${validDescription()}, ${validQuantity()}, ${validPrice()}, ${validPackType()}.")
         }
     }
 }

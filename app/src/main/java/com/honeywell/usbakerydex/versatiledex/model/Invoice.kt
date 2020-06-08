@@ -4,8 +4,9 @@ import com.honeywell.usbakerydex.versatiledex.utils.*
 import com.honeywell.usbakerydex.versatiledex.utils.isAlphanumeric
 import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
 import com.honeywell.usbakerydex.versatiledex.utils.validLength
+import java.text.SimpleDateFormat
 
-data class Invoice(private var id: String, private var orderType: VersatileOrderType = VersatileOrderType.DELIVERY, private var number: String, private var userCanAdjustQty: String?,
+data class Invoice(private var id: String, private var orderType: VersatileOrderType = VersatileOrderType.DELIVERY, private var number: String, private var date: Long, private var userCanAdjustQty: String?,
                    private var userCanAdjustCost: String?, private var userCanAdjustUOM: String?, private var invAdjustments: List<InvoiceAdjustment>?, private var items: List<Item>?) {
 
     companion object {
@@ -16,16 +17,13 @@ data class Invoice(private var id: String, private var orderType: VersatileOrder
         const val USER_CAN_ADJUST_QTY = "USER_CAN_ADJUST_QTY"
         const val USER_CAN_ADJUST_COST = "USER_CAN_ADJUST_COST"
         const val USER_CAN_ADJUST_UOM = "USER_CAN_ADJUST_UOM"
-
     }
 
     private fun validId() = id.validLength(22) && id.isAlphanumeric()
     private fun validType() = VersatileOrderType.values().contains(orderType)
+    private fun validDate() = date != 0L
     private fun validNumber() : Boolean {
-        val values = number.split(" ")
-        val orderNumber = values[0]
-        val date = values[1]
-        return !orderNumber.isNullOrBlank() && orderNumber!!.validLength(22) && orderNumber!!.isAlphanumeric() && !date.isNullOrBlank() && date.validLength(8) && date.isNumeric()
+        return !number.isBlank() && number.validLength(22) && number.isAlphanumeric()
     }
     private fun validUserCanAdjustQty() = !userCanAdjustQty.isNullOrBlank() && userCanAdjustQty!!.isBoolean()
     private fun validUserCanAdjustCost() = !userCanAdjustCost.isNullOrBlank() && userCanAdjustCost!!.isBoolean()
@@ -48,8 +46,8 @@ data class Invoice(private var id: String, private var orderType: VersatileOrder
             var invoice = ""
             invoice += "$INVOICE $id$NEW_LINE"
             invoice += "$TYPE $orderType$NEW_LINE"
-            if(validNumber())
-                invoice += "$NUMBER \"$number\"$NEW_LINE"
+            if(validNumber() && validDate())
+                invoice += "$NUMBER \"$number\" ${date.toYYYYMMDD()} $NEW_LINE"
             if(validUserCanAdjustQty())
                 invoice += "$USER_CAN_ADJUST_QTY ${userCanAdjustQty!!.extractVersatileBooleanValue()}$NEW_LINE"
             if(validUserCanAdjustCost())
@@ -57,11 +55,13 @@ data class Invoice(private var id: String, private var orderType: VersatileOrder
             if(validUserCanAdjustUOM())
                 invoice += "$USER_CAN_ADJUST_UOM ${userCanAdjustUOM!!.extractVersatileBooleanValue()}$NEW_LINE"
             if(validInvAdjustments() && invAdjustments.isNullOrEmpty())
-                invoice += invAdjustments!!.joinToString { adjustment -> adjustment.toString() }
+                invoice += NEW_LINE + invAdjustments!!.joinToString("\n") { adjustment -> adjustment.toString() }
             if(!items.isNullOrEmpty())
-                invoice += items!!.joinToString { item -> item.toString() }
+                invoice += NEW_LINE + items!!.joinToString("\n") { item -> item.toString() }
             return invoice
         } else
             throw MandatoryFieldException(SECTION)
     }
 }
+
+

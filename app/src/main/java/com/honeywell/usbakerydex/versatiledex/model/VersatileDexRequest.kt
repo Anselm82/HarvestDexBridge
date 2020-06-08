@@ -6,7 +6,7 @@ data class VersatileDexRequest(val vendor: Vendor, val stops: List<Stop>) {
         var message = ""
         message += vendor
         if(!stops.isNullOrEmpty() && stops.size == 1) //Limitation due to embedded mode
-            message += stops.joinToString { stop -> stop.toString() }
+            message += stops.joinToString("\n") { stop -> stop.toString() }
         return message
     }
 }

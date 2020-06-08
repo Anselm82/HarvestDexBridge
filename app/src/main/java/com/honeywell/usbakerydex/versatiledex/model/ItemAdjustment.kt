@@ -7,7 +7,7 @@ import com.honeywell.usbakerydex.versatiledex.utils.validLength
 
 open class ItemAdjustment(private val adjustmentType : VersatileAdjustmentType, private val adjustmentCode: String,
                           private val handlingCode: VersatileHandlingCode, private val vendorCode: String,
-                          private val flag: VersatileAdjustmentFlag,private val adjustment: String) {
+                          private val flag: VersatileAdjustmentFlag, private val adjustment: String) {
 
     companion object {
         const val SECTION = "Item Adjustment"
@@ -25,7 +25,8 @@ open class ItemAdjustment(private val adjustmentType : VersatileAdjustmentType, 
             val values = adjustment.split(PERCENTAGE_SPLITER)
             val value = values[0]
             val percentage = values[1]
-            return !value.isNullOrBlank() && value.validLength(5) && value.isDecimal() && !percentage.isNullOrBlank() && percentage.validLength(5) && percentage.isDecimal()
+            //TODO("Reduce the lenght of the value and round the adjustment")
+            return !value.isBlank() && value.validLength(7) && value.isDecimal() && !percentage.isBlank() && percentage.validLength(5) && percentage.isDecimal()
         }
         return false
     }
@@ -35,7 +36,7 @@ open class ItemAdjustment(private val adjustmentType : VersatileAdjustmentType, 
     }
 
     private fun validVendorCode(): Boolean {
-        return !vendorCode.isNullOrBlank() && vendorCode.validLength(16) && vendorCode.isNumeric()
+        return !vendorCode.isBlank() && vendorCode.validLength(16) && vendorCode.isNumeric()
     }
 
     private fun validHandlingCode(): Boolean {
@@ -43,7 +44,7 @@ open class ItemAdjustment(private val adjustmentType : VersatileAdjustmentType, 
     }
 
     private fun validAdjustmentCode(): Boolean {
-        return !adjustmentCode.isNullOrBlank() && adjustmentCode.validLength(3) && adjustmentCode.isNumeric()
+        return !adjustmentCode.isBlank() && adjustmentCode.validLength(3) && adjustmentCode.isNumeric()
     }
 
     private fun validAdjustmentType(): Boolean {
@@ -52,7 +53,7 @@ open class ItemAdjustment(private val adjustmentType : VersatileAdjustmentType, 
 
     override fun toString(): String {
         if(validAdjustment())
-            return "$ADJUSTMENT $adjustmentType $adjustmentCode $handlingCode $vendorCode $flag $adjustment$NEW_LINE"
+            return "$ADJUSTMENT ${adjustmentType.value} $adjustmentCode ${handlingCode.value} $vendorCode ${flag.value} $adjustment$NEW_LINE"
         else
             throw MandatoryFieldException(SECTION)
     }

@@ -1,38 +1,26 @@
-package com.honeywell.usbakerydex
+package com.honeywell.usbakerydex.versatiledex
 
 import com.honeywell.usbakerydex.versatiledex.model.VersatileDexResponse
 import com.honeywell.usbakerydex.versatiledex.model.VersatileDexResponseEntry
 import com.honeywell.usbakerydex.versatiledex.utils.*
-import org.json.JSONObject
 import java.text.SimpleDateFormat
+import java.util.*
 
-fun VersatileInvoiceAdjustmentFlag.toVersatileAdjustmentFlag(): VersatileAdjustmentFlag {
-    return when (this) {
-        VersatileInvoiceAdjustmentFlag.TOTAL -> VersatileAdjustmentFlag.TOTAL
-        VersatileInvoiceAdjustmentFlag.PERCENTAGE -> VersatileAdjustmentFlag.PERCENTAGE
-        else -> throw InvalidValueException("Flag")
-    }
-}
 
 class VersatileConverter {
 
-    private fun getIgnoreCase(jSONObject: JSONObject, property: String?): String? {
-        val keys: Iterator<*> = jSONObject.keys()
-        while (keys.hasNext()) {
-            val str2 = keys.next() as String
-            if (str2.equals(property, ignoreCase = true)) {
-                return str2
-            }
-        }
-        return null
-    }
-
     companion object {
+
         fun toVersatileDexResponse(content: String, dexVersion: Int): VersatileDexResponse {
             val lines = content.split(NEW_LINE)
             val entries = mutableListOf<VersatileDexResponseEntry>()
             for (line in lines)
-                entries.add(toVersatileDexResponseEntry(line, dexVersion))
+                entries.add(
+                    toVersatileDexResponseEntry(
+                        line,
+                        dexVersion
+                    )
+                )
             return VersatileDexResponse(entries.toTypedArray())
         }
 
@@ -42,7 +30,7 @@ class VersatileConverter {
             dexVersion: Int
         ): VersatileDexResponseEntry {
             val params = line.split(" ")
-            val formatter = SimpleDateFormat("YYMMDD:hhmmss")
+            val formatter = SimpleDateFormat("YYMMDD:hhmmss", Locale.US)
             val timestamp = formatter.parse(params[0])!!.time
             val ucsTypeCode = params[1].split(":")
             val ucsType = ucsTypeCode[0].toInt()
@@ -51,7 +39,11 @@ class VersatileConverter {
             val adjustmentType = VersatileResponseAdjustmentType.valueOf(params[3])
             val adjustmentTypeParams = params.subList(4, params.size)
             val entryParams =
-                toVersatileResponseParamsMap(adjustmentType, adjustmentTypeParams, dexVersion)
+                toVersatileResponseParamsMap(
+                    adjustmentType,
+                    adjustmentTypeParams,
+                    dexVersion
+                )
             return VersatileDexResponseEntry(
                 timestamp,
                 ucsType,
@@ -113,7 +105,7 @@ class VersatileConverter {
                 VersatileResponseAdjustmentType.ADJ_D_R_DATE,
                 VersatileResponseAdjustmentType.ADJ_POTD,
                 VersatileResponseAdjustmentType.ADJ_PODATE -> {
-                    val formatter = SimpleDateFormat("CCYYMMDD")
+                    val formatter = SimpleDateFormat("CCYYMMDD", Locale.US)
                     params[VersatileResponseParams.OLD_VALUE] =
                         formatter.parse(adjustmentTypeParams[0])!!.time
                     params[VersatileResponseParams.NEW_VALUE] =
@@ -130,7 +122,10 @@ class VersatileConverter {
                     if (dexVersion <= 4010) dex4010params(
                         params,
                         filteredEmptyValues
-                    ) else dex5010Params(params, filteredEmptyValues)
+                    ) else dex5010Params(
+                        params,
+                        filteredEmptyValues
+                    )
                 }
                 VersatileResponseAdjustmentType.ADJ_NEW_ITEM_REJECTED -> {
                     var index = 0
@@ -140,7 +135,11 @@ class VersatileConverter {
                         params[VersatileResponseParams.PROD_ID_QUALIFIER] = filteredEmptyValues[0]
                         index++
                     }
-                    dexParams(index, params, filteredEmptyValues)
+                    dexParams(
+                        index,
+                        params,
+                        filteredEmptyValues
+                    )
                 }
             }
             return params
@@ -165,10 +164,26 @@ class VersatileConverter {
             params[VersatileResponseParams.UPC] = filteredEmptyValues[1]
             params[VersatileResponseParams.QTY] = filteredEmptyValues[2]
             params[VersatileResponseParams.PACKTYPE] = filteredEmptyValues[3]
-            params[VersatileResponseParams.PRICE] = ensureValue(4, filteredEmptyValues)
-            params[VersatileResponseParams.PACK] = ensureValue(5, filteredEmptyValues)
-            params[VersatileResponseParams.INNER_PACK] = ensureValue(6, filteredEmptyValues)
-            params[VersatileResponseParams.CASE_UPC] = ensureValue(7, filteredEmptyValues)
+            params[VersatileResponseParams.PRICE] =
+                ensureValue(
+                    4,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.PACK] =
+                ensureValue(
+                    5,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.INNER_PACK] =
+                ensureValue(
+                    6,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.CASE_UPC] =
+                ensureValue(
+                    7,
+                    filteredEmptyValues
+                )
         }
 
         private fun dex5010Params(
@@ -179,20 +194,41 @@ class VersatileConverter {
             params[VersatileResponseParams.PROD_QUALIFIER] = filteredEmptyValues[1]
             params[VersatileResponseParams.PROD_ID] = filteredEmptyValues[2]
             params[VersatileResponseParams.QTY] = filteredEmptyValues[3]
-            params[VersatileResponseParams.PACKTYPE] = ensureValue(4, filteredEmptyValues)
-            params[VersatileResponseParams.PRICE] = ensureValue(5, filteredEmptyValues)
-            params[VersatileResponseParams.PACK] = ensureValue(6, filteredEmptyValues)
-            params[VersatileResponseParams.INNER_PACK] = ensureValue(7, filteredEmptyValues)
-            params[VersatileResponseParams.CASE_QUALIFIER] = ensureValue(8, filteredEmptyValues)
-            params[VersatileResponseParams.CASE_ID] = ensureValue(9, filteredEmptyValues)
+            params[VersatileResponseParams.PACKTYPE] =
+                ensureValue(
+                    4,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.PRICE] =
+                ensureValue(
+                    5,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.PACK] =
+                ensureValue(
+                    6,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.INNER_PACK] =
+                ensureValue(
+                    7,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.CASE_QUALIFIER] =
+                ensureValue(
+                    8,
+                    filteredEmptyValues
+                )
+            params[VersatileResponseParams.CASE_ID] =
+                ensureValue(
+                    9,
+                    filteredEmptyValues
+                )
         }
 
         private fun ensureValue(index: Int, list: List<String>) =
             if (list.size >= index + 1) list[index] else ""
 
-        fun versatileRequestFromJSON(jsonObject: JSONObject): String {
-            TODO("Not yet implemented")
-        }
     }
 }
 

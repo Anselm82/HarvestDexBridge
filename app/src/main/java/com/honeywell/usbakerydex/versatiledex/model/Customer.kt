@@ -5,7 +5,7 @@ import com.honeywell.usbakerydex.versatiledex.utils.isAlphanumeric
 import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
 import com.honeywell.usbakerydex.versatiledex.utils.validLength
 
-data class Customer(private var duns: String, private var location: String, private var commId: String?,
+data class Customer(var signature: Long, private var duns: String, private var location: String, private var commId: String?,
                     private var number: String? = null, private var name: String? = null, private var address: String? = null,
                     private var city: String? = null, private var state: String? = null, private var zip: String? = null,
                     private var phone1: String? = null, private var phone2: String? = null, private var contact: String? = null, private var notes: String? = null) {
@@ -50,7 +50,7 @@ data class Customer(private var duns: String, private var location: String, priv
     override fun toString(): String {
         if(isMandatoryDataSetAndValid()) {
             var customer = ""
-            customer += "$DUNS $duns$NEW_LINE"
+            customer += "$DUNS ${paddingWithZero(duns,9)}$NEW_LINE"
             customer += "$LOCATION \"$location\"$NEW_LINE"
             if (validCommId())
                 customer += "$COMM_ID $commId$NEW_LINE"

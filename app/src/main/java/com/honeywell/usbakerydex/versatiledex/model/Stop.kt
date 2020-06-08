@@ -18,11 +18,11 @@ data class Stop(private val number: String, private val customer: Customer, priv
     override fun toString(): String {
         if (isMandatoryDataSetAndValid()) {
             var stop = ""
-            stop += "$STOP $number$NEW_LINE"
-            stop += customer
+            stop += "$STOP $number$NEW_LINE$NEW_LINE"
+            stop += "$customer$NEW_LINE"
             stop += additionalOptions
             if(!invoices.isNullOrEmpty())
-                stop += invoices.joinToString { invoice -> invoice.toString() }
+                stop += invoices.joinToString("\n") { invoice -> invoice.toString() }
             return stop
         } else {
             throw MandatoryFieldException(
@@ -96,7 +96,7 @@ data class Stop(private val number: String, private val customer: Customer, priv
         override fun toString(): String {
             var additionalOptions = ""
             if (validDexVersion())
-                additionalOptions += "$DEX_VERSION $dexVersion$NEW_LINE"
+                additionalOptions += "$DEX_VERSION ${dexVersion!!.cleanUCS().toInt()}$NEW_LINE"
             if (validTestData())
                 additionalOptions += "$TEST_DATA ${testData!!.extractVersatileBooleanValue()}$NEW_LINE"
             if (validPromptBeforeACK())

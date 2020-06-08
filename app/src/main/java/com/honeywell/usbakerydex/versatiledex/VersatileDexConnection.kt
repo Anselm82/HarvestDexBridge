@@ -6,14 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 
-enum class VersatileDEXMode(val value : Int) {
+enum class VersatileDexMode(val value : Int) {
     ACTION_START_DEX(0),
     ACTION_LICENSE_REFRESH(1),
     ACTION_START_ACTIVATE(2),
     ACTION_LICENSE_STATUS(3)
 }
-
+/*
 abstract class VersatileDexConnection : Activity() {
 
     companion object {
@@ -61,19 +62,19 @@ abstract class VersatileDexConnection : Activity() {
     @Override
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val filter = IntentFilter(ACTION_DEX_FINISHED);
-        registerReceiver(mBroadcastReceiver, filter);
+        val filter = IntentFilter(ACTION_DEX_FINISHED)
+        registerReceiver(mBroadcastReceiver, filter)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(mBroadcastReceiver);
+        unregisterReceiver(mBroadcastReceiver)
     }
 
     abstract fun getRouteData() : String
 
 
-    private fun build(mode: VersatileDEXMode, content: String? = null) : Intent {
+    private fun build(mode: VersatileDexMode, content: String? = null) : Intent {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = SEND_TYPE
         intent.`package` = DEX_APP_PKG_NAME
@@ -84,23 +85,24 @@ abstract class VersatileDexConnection : Activity() {
     }
 
     fun refreshClientLicense () {
-        val intent = build(VersatileDEXMode.ACTION_LICENSE_REFRESH)
+        val intent = build(VersatileDexMode.ACTION_LICENSE_REFRESH)
         startActivity(intent)
     }
 
     fun startActivation(){
-        val intent = build(VersatileDEXMode.ACTION_START_ACTIVATE)
+        val intent = build(VersatileDexMode.ACTION_START_ACTIVATE)
         startActivity(intent)
     }
 
     fun licenseStatus() {
-        val intent = build(VersatileDEXMode.ACTION_LICENSE_STATUS)
+        val intent = build(VersatileDexMode.ACTION_LICENSE_STATUS)
         startActivity(intent)
     }
 
     fun launchDEX(){
         val data = getRouteData()
-        val intent = build(VersatileDEXMode.ACTION_START_DEX, data)
+        Log.i("Versatile", data)
+        val intent = build(VersatileDexMode.ACTION_START_DEX, data)
         startActivity(intent)
     }
-}
+}*/
