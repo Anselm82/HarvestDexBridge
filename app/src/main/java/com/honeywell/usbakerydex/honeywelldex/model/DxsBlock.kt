@@ -1,9 +1,20 @@
 package com.honeywell.usbakerydex.honeywelldex.model
 
-data class DxsBlock(val communicationIdNumber: String?, //01
-                    val functionalIdentifier: String?, //02
-                    val version: String?, //03 dex version String
-                    val transmissionControlNumber: Int, //04
-                    val communicationsId: String?, //05
-                    val testIndicator: String? //06
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonProperty
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+data class DxsBlock(
+    @JsonProperty("RetailerCommunicationID")
+    val retailerCommunicationId: String?, //01
+    @JsonProperty("FunctionalIdentifierCode")
+    val functionalIdentifierCode: String? = FunctionalIdentifier.DX.value, //02
+    @JsonProperty("VersionOrReleaseOrIndustryIdentifierCode")
+    val versionOrReleaseOrIndustryIdentifierCode: String?, //03 dex version String
+    @JsonProperty("TransmissionControlNumber")
+    val transmissionControlNumber: Long?, //04
+    @JsonProperty("SupplierCommunicationID")
+    val supplierCommunicationsId: String?, //05
+    @JsonProperty("TestIndicator")
+    val testIndicator: String? = TestIndicator.PRODUCTION.value //06
 )

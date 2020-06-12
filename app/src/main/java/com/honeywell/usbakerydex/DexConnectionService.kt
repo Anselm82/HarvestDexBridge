@@ -5,23 +5,15 @@ import android.content.*
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.Color
 import android.os.*
-import android.telecom.Call
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.honeywell.usbakerydex.honeywelldex.HoneywellParser
 import com.honeywell.usbakerydex.honeywelldex.model.HoneywellDexRequest
-import com.honeywell.usbakerydex.versatiledex.VersatileDexMode
+import com.honeywell.usbakerydex.versatiledex.model.VersatileDexMode
 import org.json.JSONObject
-import java.lang.RuntimeException
 import java.util.*
 
-
-enum class CommunicationMethod {
-    NONE,
-    RS232,
-    BTLE
-}
 
 class DexConnectionService : Service() {
 

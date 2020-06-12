@@ -13,6 +13,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        moveTaskToBack(true)
+        //moveTaskToBack(true)
+        finish()
     }
 }

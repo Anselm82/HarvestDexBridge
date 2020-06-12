@@ -1,3 +1,9 @@
 package com.honeywell.usbakerydex.honeywelldex.model
 
-data class G85Block(val integrityCheck: String?) //01
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonProperty
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+data class G85Block(
+    @JsonProperty("IntegrityCheckValue")
+    val integrityCheck: String?) //01

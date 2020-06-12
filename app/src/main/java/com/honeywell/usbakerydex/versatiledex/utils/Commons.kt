@@ -54,7 +54,42 @@ enum class VersatileResponseInvoiceStatus(val value: Int) {
     }
 }
 
+
+val INVOICE_ADJUSTMENT_TYPES = arrayOf(VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
+    VersatileResponseAdjustmentType.ADJ_INVC_CHARGE,
+    VersatileResponseAdjustmentType.ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG,
+    VersatileResponseAdjustmentType.INVC_STATUS,
+    VersatileResponseAdjustmentType.INVC_STATUS_MANUALLY_CHANGED)
+
+val SERVER_ADJUSTMENT_TYPES = arrayOf(
+    VersatileResponseAdjustmentType.ADJ_D_R_DATE,
+    VersatileResponseAdjustmentType.ADJ_POTD,
+    VersatileResponseAdjustmentType.ADJ_PONUM,
+    VersatileResponseAdjustmentType.ADJ_PODATE,
+    VersatileResponseAdjustmentType.ADJ_LOCATION)
+
+val ITEM_ADJUSTMENT_TYPES = arrayOf(
+    VersatileResponseAdjustmentType.ADJ_PACKTYPE,
+    VersatileResponseAdjustmentType.ADJ_PRICE,
+    VersatileResponseAdjustmentType.ADJ_QTY,
+    VersatileResponseAdjustmentType.ADJ_UPC,
+    VersatileResponseAdjustmentType.ADJ_CASEUPC,
+    VersatileResponseAdjustmentType.ADJ_PACK,
+    VersatileResponseAdjustmentType.ADJ_INNERPACK,
+    VersatileResponseAdjustmentType.ADJ_PROD_QUALIFIER,
+    VersatileResponseAdjustmentType.ADJ_PROD_ID,
+    VersatileResponseAdjustmentType.ADJ_ALLOWANCE,
+    VersatileResponseAdjustmentType.ADJ_ALLOWANCE_REJECTED,
+    VersatileResponseAdjustmentType.ADJ_CHARGE,
+    VersatileResponseAdjustmentType.ADJ_CHARGE_REJECTED,
+    VersatileResponseAdjustmentType.ADJ_KILL_PREVIOUS_ALLOW_CHG,
+    VersatileResponseAdjustmentType.ADJ_NEW_ITEM,
+    VersatileResponseAdjustmentType.ADJ_NEW_ITEM_REJECTED,
+    VersatileResponseAdjustmentType.ADJ_DEL_ITEM)
+
+
 enum class VersatileResponseAdjustmentType(val value: String) {
+
     ADJ_PACKTYPE("ADJ_PACKTYPE"),
     ADJ_PRICE("ADJ_PRICE"),
     ADJ_QTY("ADJ_QTY"),
@@ -72,6 +107,7 @@ enum class VersatileResponseAdjustmentType(val value: String) {
     ADJ_NEW_ITEM("ADJ_NEW_ITEM"),
     ADJ_NEW_ITEM_REJECTED("ADJ_NEW_ITEM_REJECTED"),
     ADJ_DEL_ITEM("ADJ_DEL_ITEM"),
+
     INVC_STATUS_MANUALLY_CHANGED("INVC_STATUS_MANUALLY_CHANGED"),
     INVC_STATUS("INVC_STATUS"),
 
@@ -84,6 +120,7 @@ enum class VersatileResponseAdjustmentType(val value: String) {
     ADJ_PONUM("ADJ_PONUM"),
     ADJ_PODATE("ADJ_PODATE"),
     ADJ_LOCATION("ADJ_LOCATION")
+
 }
 
 enum class VersatileResponseCode(val value: String) {

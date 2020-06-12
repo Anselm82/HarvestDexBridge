@@ -889,9 +889,9 @@ class HoneywellParser {
                         extract(
                             dxsContent,
                             HKey._04,
-                            0,
-                            Int::class.java
-                        ) as Int,
+                            0L,
+                            Long::class.java
+                        ) as Long,
                         extract(
                             dxsContent,
                             HKey._05,

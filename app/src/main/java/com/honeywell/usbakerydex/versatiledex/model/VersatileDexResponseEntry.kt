@@ -7,7 +7,7 @@ data class VersatileDexResponseEntry(
     val timestamp: Long,
     val ucsType: Int,
     val code: VersatileResponseCode,
-    val invoice: Int,
+    val invoice: String,
     val adjustmentType: VersatileResponseAdjustmentType,
     val params: Map<String, Any>
 ) {
@@ -22,7 +22,7 @@ data class VersatileDexResponseEntry(
         ) + NEW_LINE
     }
 
-    private fun getValueOrDefault(key: String, map: Map<String, Any>, default: String): Any {
+    fun getValueOrDefault(key: String, map: Map<String, Any>, default: String): Any {
         if (map.containsKey(key))
             if (key == VersatileResponseParams.INVOICE_STATUS && !map[key].toString()
                     .isNullOrBlank()

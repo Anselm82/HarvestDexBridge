@@ -48,7 +48,7 @@ class VersatileConverter {
                 timestamp,
                 ucsType,
                 code,
-                invoice,
+                "$invoice",
                 adjustmentType,
                 entryParams
             )
@@ -86,16 +86,14 @@ class VersatileConverter {
                     params[VersatileResponseParams.REASON] = adjustmentTypeParams[1]
                 }
                 VersatileResponseAdjustmentType.ADJ_DEL_ITEM,
-                VersatileResponseAdjustmentType.ADJ_KILL_PREVIOUS_ALLOW_CHG -> params[VersatileResponseParams.ITEM_INDEX] =
-                    adjustmentTypeParams[0].toInt()
+                VersatileResponseAdjustmentType.ADJ_KILL_PREVIOUS_ALLOW_CHG ->
+                    params[VersatileResponseParams.ITEM_INDEX] = adjustmentTypeParams[0].toInt()
                 VersatileResponseAdjustmentType.INVC_STATUS_MANUALLY_CHANGED -> {
-                    params[VersatileResponseParams.OLD_VALUE] =
-                        VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[0].toInt())
-                    params[VersatileResponseParams.NEW_VALUE] =
-                        VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[1].toInt())
+                    params[VersatileResponseParams.OLD_VALUE] = VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[0].toInt())
+                    params[VersatileResponseParams.NEW_VALUE] = VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[1].toInt())
                 }
-                VersatileResponseAdjustmentType.INVC_STATUS -> params[VersatileResponseParams.INVOICE_STATUS] =
-                    VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[0].toInt())
+                VersatileResponseAdjustmentType.INVC_STATUS ->
+                    params[VersatileResponseParams.INVOICE_STATUS] = VersatileResponseInvoiceStatus.fromValue(adjustmentTypeParams[0].toInt())
                 VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
                 VersatileResponseAdjustmentType.ADJ_INVC_CHARGE,
                 VersatileResponseAdjustmentType.ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG -> {

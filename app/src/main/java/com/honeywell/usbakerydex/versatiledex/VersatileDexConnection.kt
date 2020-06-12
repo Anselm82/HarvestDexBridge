@@ -8,12 +8,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 
-enum class VersatileDexMode(val value : Int) {
-    ACTION_START_DEX(0),
-    ACTION_LICENSE_REFRESH(1),
-    ACTION_START_ACTIVATE(2),
-    ACTION_LICENSE_STATUS(3)
-}
+
 /*
 abstract class VersatileDexConnection : Activity() {
 
