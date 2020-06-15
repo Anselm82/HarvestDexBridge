@@ -7,8 +7,13 @@ class ShipmentMethodOfPayment {
         const val PREPAID_BUT_CHARGED_TO_CUSTOMER = "PC"
         const val PREPAID_BY_SELLER = "PP"
 
-        fun values() : List<String> {
-            return arrayListOf(COLLECT, CUSTOMER_PICKUP_OR_BACKHAUL, PREPAID_BUT_CHARGED_TO_CUSTOMER, PREPAID_BY_SELLER)
+        fun values(): List<String> {
+            return arrayListOf(
+                COLLECT,
+                CUSTOMER_PICKUP_OR_BACKHAUL,
+                PREPAID_BUT_CHARGED_TO_CUSTOMER,
+                PREPAID_BY_SELLER
+            )
         }
     }
 }

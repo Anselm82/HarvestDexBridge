@@ -9,7 +9,14 @@ data class InvoiceAdjustment(
     val vendorCode: String,
     val flag: VersatileInvoiceAdjustmentFlag,
     val adjustment: String
-) : ItemAdjustment(adjustmentType, adjustmentCode, handlingCode, vendorCode, flag.toVersatileAdjustmentFlag(), adjustment) {
+) : ItemAdjustment(
+    adjustmentType,
+    adjustmentCode,
+    handlingCode,
+    vendorCode,
+    flag.toVersatileAdjustmentFlag(),
+    adjustment
+) {
 
     companion object {
         const val SECTION = "Invoice adjustment"
@@ -17,7 +24,7 @@ data class InvoiceAdjustment(
     }
 
     override fun toString(): String {
-        if(validAdjustment())
+        if (validAdjustment())
             return "$INVOICE_ADJUSTMENT $adjustmentType $adjustmentCode $handlingCode $vendorCode $flag $adjustment$NEW_LINE"
         else
             throw MandatoryFieldException(SECTION)

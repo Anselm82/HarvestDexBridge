@@ -8,4 +8,5 @@ data class InvoiceStatus(
     @JsonProperty("InvoiceNumber")
     val invoiceNumber: String,
     @JsonProperty("Status")
-    val status: String)
+    val status: String
+)

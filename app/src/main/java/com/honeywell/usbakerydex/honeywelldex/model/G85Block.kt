@@ -6,4 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class G85Block(
     @JsonProperty("IntegrityCheckValue")
-    val integrityCheck: String?) //01
+    val integrityCheck: String?
+) //01

@@ -5,7 +5,7 @@ class CreditDebitFlagCode {
         const val CREDIT = "C"
         const val DEBIT = "D"
 
-        fun values() : List<String> {
+        fun values(): List<String> {
             return arrayListOf(CREDIT, DEBIT)
         }
     }

@@ -238,7 +238,10 @@ class HoneywellVersatileConverter {
                 this.receiveDexData = ReceiveDexData(
                     getDxsBlock(honeywellDexRequest),
                     invoiceList,
-                    getDxeBlock(versatileDexResponse.lines.map { it.invoice }.size, honeywellDexRequest)
+                    getDxeBlock(
+                        versatileDexResponse.lines.map { it.invoice }.size,
+                        honeywellDexRequest
+                    )
                 )
             }
         }
@@ -250,11 +253,14 @@ class HoneywellVersatileConverter {
             val entries = mutableListOf<InvoiceEntry>()
             val invoices = versatileDexResponse.lines.map { it.invoice }
             var index = 1
-            for(invoice in invoices) {
-                val invoiceFromRequest = honeywellDexRequest.transaction!!.invoices[invoice] ?: error("Invoice not found")
+            for (invoice in invoices) {
+                val invoiceFromRequest = honeywellDexRequest.transaction!!.invoices[invoice]
+                    ?: error("Invoice not found")
                 val linesByInvoice = versatileDexResponse.lines.filter { it.invoice == invoice }
-                val invoiceStatus = getInvoiceStatus(invoice,
-                    linesByInvoice)
+                val invoiceStatus = getInvoiceStatus(
+                    invoice,
+                    linesByInvoice
+                )
                 val entry = InvoiceEntry(
                     invoiceStatus,
                     getSTBlock(index, linesByInvoice, honeywellDexRequest),
@@ -312,9 +318,13 @@ class HoneywellVersatileConverter {
                 invoice.g82.typeFlag,
                 invoice.g82.invoiceNumber,
                 "", //TODO("Integrity check? Ignored on MEL")
-                linesByInvoice.filter { it.adjustmentType in arrayOf(VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
-                    VersatileResponseAdjustmentType.ADJ_INVC_CHARGE,
-                    VersatileResponseAdjustmentType.ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG  ) }.size,
+                linesByInvoice.filter {
+                    it.adjustmentType in arrayOf(
+                        VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
+                        VersatileResponseAdjustmentType.ADJ_INVC_CHARGE,
+                        VersatileResponseAdjustmentType.ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG
+                    )
+                }.size,
                 null //TODO("Ask for availability on Versatile")
             )
         }
@@ -324,7 +334,8 @@ class HoneywellVersatileConverter {
             linesByInvoice: List<VersatileDexResponseEntry>
         ): List<G89Block>? {
             val g89Blocks = mutableListOf<G89Block>()
-            val itemAdjustments = linesByInvoice.groupBy { (it.params[VersatileResponseParams.ITEM_INDEX] as String?)!!.toInt() }
+            val itemAdjustments =
+                linesByInvoice.groupBy { (it.params[VersatileResponseParams.ITEM_INDEX] as String?)!!.toInt() }
             for (itemAdjustment in itemAdjustments.entries) {
                 val g89Block = getG89Block(invoice, itemAdjustment.key, itemAdjustment.value)
                 g89Blocks.add(g89Block)
@@ -357,7 +368,7 @@ class HoneywellVersatileConverter {
             val caseId = itemAdjustment.params[VersatileResponseParams.CASE_ID] as String?*/
             //TODO(CHECK if there is any new ones agains g83 items and treat is as added Item)
             val originalItem = invoice.items?.get("$index")
-            if(originalItem != null) {
+            if (originalItem != null) {
                 val g72List = getG72AdjustmentsFor(itemAdjustments, originalItem)
                 val g89 = G89Block(
                     dsdSequenceNumber = "$index",
@@ -376,15 +387,17 @@ class HoneywellVersatileConverter {
                 )
             }
 
-            for(key in itemAdjustment.keys) {
+            for (key in itemAdjustment.keys) {
                 val item = itemAdjustment[key]
                 if (item != null) {
                     val originalItem = invoice.items?.get(key)
-                    var g72 = G72Block(null,
+                    var g72 = G72Block(
+                        null,
                         null, null,
-                        null,null,null,
-                        null,null,
-                        null,null,null)
+                        null, null, null,
+                        null, null,
+                        null, null, null
+                    )
 
                     )
                     for (adjustment in item) {
@@ -406,14 +419,14 @@ class HoneywellVersatileConverter {
             adjustments: List<VersatileDexResponseEntry>?,
             originalItem: com.honeywell.usbakerydex.honeywelldex.model.G83Block
         ): List<G72Block>? {
-            if(adjustments.isNullOrEmpty())
+            if (adjustments.isNullOrEmpty())
                 return null
             val itemAdjustments = adjustments.filter { it.adjustmentType in ITEM_ADJUSTMENT_TYPES }
-            return if(itemAdjustments.isNullOrEmpty())
+            return if (itemAdjustments.isNullOrEmpty())
                 null
             else {
                 val g72List = mutableListOf<G72Block>()
-                if(itemAdjustments.firstOrNull { it.ucsType == 895 } != null)
+                if (itemAdjustments.firstOrNull { it.ucsType == 895 } != null)
                     g72List.add(removeItemAdjustment())
                 for (itemAdjustment in itemAdjustments) {
                     val g72Block = getG72Block(itemAdjustment, originalItem)
@@ -439,13 +452,18 @@ class HoneywellVersatileConverter {
         ): G72Block {
             val isRate = itemAdjustment.params[VersatileResponseParams.RATE] != null
             val isTotal = itemAdjustment.params[VersatileResponseParams.PRICE] != null
-            val code = if(isTotal) 501 else if(isRate) if(originalItem.type == ItemType.SAMPLES.value) 1 else 97 else 0
-            when(itemAdjustment.adjustmentType) {
-                VersatileResponseAdjustmentType.ADJ_PRICE -> ,
-                    VersatileResponseAdjustmentType.ADJ_ALLOWANCE -> ,
-            VersatileResponseAdjustmentType.ADJ_QTY ->,
-                VersatileResponseAdjustmentType.ADJ_CHARGE ->,
-            VersatileResponseAdjustmentType.ADJ_DEL_ITEM ->
+            val code =
+                if (isTotal) 501 else if (isRate) if (originalItem.type == ItemType.SAMPLES.value) 1 else 97 else 0
+            when (itemAdjustment.adjustmentType) {
+                VersatileResponseAdjustmentType.ADJ_PRICE ->
+                    ,
+                VersatileResponseAdjustmentType.ADJ_ALLOWANCE ->
+                    ,
+                VersatileResponseAdjustmentType.ADJ_QTY ->
+                    ,
+                VersatileResponseAdjustmentType.ADJ_CHARGE ->
+                    ,
+                VersatileResponseAdjustmentType.ADJ_DEL_ITEM ->
 
             }
             return G72Block(
@@ -453,15 +471,14 @@ class HoneywellVersatileConverter {
                 HoneywellHandlingMethodCodes.OFF_INVOICE,
 
 
-
-            )
+                )
         }
 
         private fun removeItemAdjustment(): G72Block {
             return G72Block(
                 96,
-            HoneywellHandlingMethodCodes.NOT_PROCESSED,
-            "REMOVE"
+                HoneywellHandlingMethodCodes.NOT_PROCESSED,
+                "REMOVE"
             )
         }
 
@@ -477,11 +494,24 @@ class HoneywellVersatileConverter {
             )
         }
 
-        private fun getInvoiceStatus(invoice: String, entries: List<VersatileDexResponseEntry>): InvoiceStatus {
-            val entry = entries.first { it.adjustmentType == VersatileResponseAdjustmentType.INVC_STATUS }
-            val status = VersatileResponseInvoiceStatus.fromValue((entry.getValueOrDefault(VersatileResponseParams.INVOICE_STATUS, entry.params, VersatileResponseInvoiceStatus.CLOSED.value.toString()) as String).toInt())
+        private fun getInvoiceStatus(
+            invoice: String,
+            entries: List<VersatileDexResponseEntry>
+        ): InvoiceStatus {
+            val entry =
+                entries.first { it.adjustmentType == VersatileResponseAdjustmentType.INVC_STATUS }
+            val status = VersatileResponseInvoiceStatus.fromValue(
+                (entry.getValueOrDefault(
+                    VersatileResponseParams.INVOICE_STATUS,
+                    entry.params,
+                    VersatileResponseInvoiceStatus.CLOSED.value.toString()
+                ) as String).toInt()
+            )
             val isAdjusted = status != VersatileResponseInvoiceStatus.CLOSED
-            return InvoiceStatus(invoice, if(isAdjusted) HoneywellInvoiceStatus.ADJUSTED.value else HoneywellInvoiceStatus.ACKNOWLEDGED.value)
+            return InvoiceStatus(
+                invoice,
+                if (isAdjusted) HoneywellInvoiceStatus.ADJUSTED.value else HoneywellInvoiceStatus.ACKNOWLEDGED.value
+            )
         }
 
         private fun getDxeBlock(
@@ -509,7 +539,7 @@ class HoneywellVersatileConverter {
     }
 }
 
-private fun VersatileResponseInvoiceStatus.convertToHoneywellString() = when(this) {
+private fun VersatileResponseInvoiceStatus.convertToHoneywellString() = when (this) {
     //Movilizer only accepts "Acknowledged" or "Adjusted"... I guess it depends on the operations performed.
     VersatileResponseInvoiceStatus.CLOSED -> "Closed" // "Acknowledged"
     VersatileResponseInvoiceStatus.RECEIVED -> "Received"

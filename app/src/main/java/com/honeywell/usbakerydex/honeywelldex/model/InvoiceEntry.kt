@@ -20,4 +20,5 @@ data class InvoiceEntry(
     @JsonProperty("G84")
     val g84Block: G84Block?,
     @JsonProperty("SE")
-    val seBlock: SEBlock?)
+    val seBlock: SEBlock?
+)

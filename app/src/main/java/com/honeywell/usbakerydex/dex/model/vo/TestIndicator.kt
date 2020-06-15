@@ -5,7 +5,7 @@ class TestIndicator {
         const val TEST = "T"
         const val PRODUCTION = "P"
 
-        fun values() : List<String> {
+        fun values(): List<String> {
             return arrayListOf(
                 TEST,
                 PRODUCTION

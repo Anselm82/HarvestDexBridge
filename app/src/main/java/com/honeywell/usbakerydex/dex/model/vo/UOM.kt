@@ -17,11 +17,25 @@ class UOM {
         const val TANK = "TK"
         const val UNIT = "UN"
 
-        fun values() : List<String> {
-            return arrayListOf(BOX, CARTON, DOZEN, GALLON, KEG, KILOGRAM, POUND, PACKAGE, PALLET, TANK, UNIT, EACH, CASE)
+        fun values(): List<String> {
+            return arrayListOf(
+                BOX,
+                CARTON,
+                DOZEN,
+                GALLON,
+                KEG,
+                KILOGRAM,
+                POUND,
+                PACKAGE,
+                PALLET,
+                TANK,
+                UNIT,
+                EACH,
+                CASE
+            )
         }
 
-        fun supportedValues() : List<String> {
+        fun supportedValues(): List<String> {
             return arrayListOf(EACH)
         }
     }

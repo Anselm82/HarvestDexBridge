@@ -16,7 +16,11 @@ class App : Application() {
     private fun createNotificationChannel() {
         if (VERSION.SDK_INT >= 26) {
             (getSystemService(NotificationManager::class.java) as NotificationManager).createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
             )
         }
     }

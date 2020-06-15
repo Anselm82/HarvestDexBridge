@@ -175,7 +175,7 @@ class DexConnectionService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(mBroadcastReceiver != null)
+        if (mBroadcastReceiver != null)
             unregisterReceiver(mBroadcastReceiver)
     }
 

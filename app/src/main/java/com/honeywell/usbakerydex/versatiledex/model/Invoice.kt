@@ -6,8 +6,17 @@ import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
 import com.honeywell.usbakerydex.versatiledex.utils.validLength
 import java.text.SimpleDateFormat
 
-data class Invoice(private var id: String, private var orderType: VersatileOrderType = VersatileOrderType.DELIVERY, private var number: String, private var date: Long, private var userCanAdjustQty: String?,
-                   private var userCanAdjustCost: String?, private var userCanAdjustUOM: String?, private var invAdjustments: List<InvoiceAdjustment>?, private var items: List<Item>?) {
+data class Invoice(
+    private var id: String,
+    private var orderType: VersatileOrderType = VersatileOrderType.DELIVERY,
+    private var number: String,
+    private var date: Long,
+    private var userCanAdjustQty: String?,
+    private var userCanAdjustCost: String?,
+    private var userCanAdjustUOM: String?,
+    private var invAdjustments: List<InvoiceAdjustment>?,
+    private var items: List<Item>?
+) {
 
     companion object {
         const val SECTION = "Invoice"
@@ -22,16 +31,22 @@ data class Invoice(private var id: String, private var orderType: VersatileOrder
     private fun validId() = id.validLength(22) && id.isAlphanumeric()
     private fun validType() = VersatileOrderType.values().contains(orderType)
     private fun validDate() = date != 0L
-    private fun validNumber() : Boolean {
+    private fun validNumber(): Boolean {
         return !number.isBlank() && number.validLength(22) && number.isAlphanumeric()
     }
-    private fun validUserCanAdjustQty() = !userCanAdjustQty.isNullOrBlank() && userCanAdjustQty!!.isBoolean()
-    private fun validUserCanAdjustCost() = !userCanAdjustCost.isNullOrBlank() && userCanAdjustCost!!.isBoolean()
-    private fun validUserCanAdjustUOM() = !userCanAdjustUOM.isNullOrBlank() && userCanAdjustUOM!!.isBoolean()
+
+    private fun validUserCanAdjustQty() =
+        !userCanAdjustQty.isNullOrBlank() && userCanAdjustQty!!.isBoolean()
+
+    private fun validUserCanAdjustCost() =
+        !userCanAdjustCost.isNullOrBlank() && userCanAdjustCost!!.isBoolean()
+
+    private fun validUserCanAdjustUOM() =
+        !userCanAdjustUOM.isNullOrBlank() && userCanAdjustUOM!!.isBoolean()
 
     private fun isMandatoryDataSetAndValid() = validId() && validType()
 
-    private fun validInvAdjustments() : Boolean {
+    private fun validInvAdjustments(): Boolean {
         return when {
             invAdjustments.isNullOrEmpty() -> true
             invAdjustments!!.size <= 20 -> {
@@ -42,21 +57,21 @@ data class Invoice(private var id: String, private var orderType: VersatileOrder
     }
 
     override fun toString(): String {
-        if(isMandatoryDataSetAndValid()) {
+        if (isMandatoryDataSetAndValid()) {
             var invoice = ""
             invoice += "$INVOICE $id$NEW_LINE"
             invoice += "$TYPE $orderType$NEW_LINE"
-            if(validNumber() && validDate())
+            if (validNumber() && validDate())
                 invoice += "$NUMBER \"$number\" ${date.toYYYYMMDD()} $NEW_LINE"
-            if(validUserCanAdjustQty())
+            if (validUserCanAdjustQty())
                 invoice += "$USER_CAN_ADJUST_QTY ${userCanAdjustQty!!.extractVersatileBooleanValue()}$NEW_LINE"
-            if(validUserCanAdjustCost())
+            if (validUserCanAdjustCost())
                 invoice += "$USER_CAN_ADJUST_COST ${userCanAdjustCost!!.extractVersatileBooleanValue()}$NEW_LINE"
-            if(validUserCanAdjustUOM())
+            if (validUserCanAdjustUOM())
                 invoice += "$USER_CAN_ADJUST_UOM ${userCanAdjustUOM!!.extractVersatileBooleanValue()}$NEW_LINE"
-            if(validInvAdjustments() && invAdjustments.isNullOrEmpty())
+            if (validInvAdjustments() && invAdjustments.isNullOrEmpty())
                 invoice += NEW_LINE + invAdjustments!!.joinToString("\n") { adjustment -> adjustment.toString() }
-            if(!items.isNullOrEmpty())
+            if (!items.isNullOrEmpty())
                 invoice += NEW_LINE + items!!.joinToString("\n") { item -> item.toString() }
             return invoice
         } else

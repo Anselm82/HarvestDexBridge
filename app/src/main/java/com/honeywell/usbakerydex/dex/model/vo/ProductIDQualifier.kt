@@ -12,8 +12,17 @@ open class ProductIDQualifier {
         const val GTIN_12 = "UP"
         const val VENDOR_ITEM_NUMBER = "VN"
 
-        fun values() : List<String> {
-            return arrayListOf(CASE, DEPOSIT_ITEM_NUMBER, GTIN_12, GTIN_13, GTIN_14, GTIN_8, NON_RESALEABLE, VENDOR_ITEM_NUMBER)
+        fun values(): List<String> {
+            return arrayListOf(
+                CASE,
+                DEPOSIT_ITEM_NUMBER,
+                GTIN_12,
+                GTIN_13,
+                GTIN_14,
+                GTIN_8,
+                NON_RESALEABLE,
+                VENDOR_ITEM_NUMBER
+            )
         }
     }
 }

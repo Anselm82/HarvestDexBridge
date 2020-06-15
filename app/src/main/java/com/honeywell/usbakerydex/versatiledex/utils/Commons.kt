@@ -55,18 +55,21 @@ enum class VersatileResponseInvoiceStatus(val value: Int) {
 }
 
 
-val INVOICE_ADJUSTMENT_TYPES = arrayOf(VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
+val INVOICE_ADJUSTMENT_TYPES = arrayOf(
+    VersatileResponseAdjustmentType.ADJ_INVC_ALLOWANCE,
     VersatileResponseAdjustmentType.ADJ_INVC_CHARGE,
     VersatileResponseAdjustmentType.ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG,
     VersatileResponseAdjustmentType.INVC_STATUS,
-    VersatileResponseAdjustmentType.INVC_STATUS_MANUALLY_CHANGED)
+    VersatileResponseAdjustmentType.INVC_STATUS_MANUALLY_CHANGED
+)
 
 val SERVER_ADJUSTMENT_TYPES = arrayOf(
     VersatileResponseAdjustmentType.ADJ_D_R_DATE,
     VersatileResponseAdjustmentType.ADJ_POTD,
     VersatileResponseAdjustmentType.ADJ_PONUM,
     VersatileResponseAdjustmentType.ADJ_PODATE,
-    VersatileResponseAdjustmentType.ADJ_LOCATION)
+    VersatileResponseAdjustmentType.ADJ_LOCATION
+)
 
 val ITEM_ADJUSTMENT_TYPES = arrayOf(
     VersatileResponseAdjustmentType.ADJ_PACKTYPE,
@@ -85,7 +88,8 @@ val ITEM_ADJUSTMENT_TYPES = arrayOf(
     VersatileResponseAdjustmentType.ADJ_KILL_PREVIOUS_ALLOW_CHG,
     VersatileResponseAdjustmentType.ADJ_NEW_ITEM,
     VersatileResponseAdjustmentType.ADJ_NEW_ITEM_REJECTED,
-    VersatileResponseAdjustmentType.ADJ_DEL_ITEM)
+    VersatileResponseAdjustmentType.ADJ_DEL_ITEM
+)
 
 
 enum class VersatileResponseAdjustmentType(val value: String) {
@@ -181,9 +185,9 @@ internal fun VersatileInvoiceAdjustmentFlag.toVersatileAdjustmentFlag(): Versati
     }
 }
 
-internal fun paddingWithZero(number: String, fixedLenght: Int) : String {
+internal fun paddingWithZero(number: String, fixedLenght: Int): String {
     var text = number
-    while(text.length < fixedLenght) {
+    while (text.length < fixedLenght) {
         text = "0$text"
     }
     return text

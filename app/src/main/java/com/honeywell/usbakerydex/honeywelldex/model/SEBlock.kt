@@ -8,4 +8,5 @@ data class SEBlock(
     @JsonProperty("SegmentCount")
     val segmentCount: Int,
     @JsonProperty("TransactionSetControlNumber")
-    val transactionSetControlNumber: Int)
+    val transactionSetControlNumber: Int
+)

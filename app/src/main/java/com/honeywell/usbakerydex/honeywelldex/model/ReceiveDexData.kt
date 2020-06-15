@@ -10,4 +10,5 @@ data class ReceiveDexData(
     @JsonProperty("InvoiceList")
     val invoiceEntriesList: List<InvoiceEntry>,
     @JsonProperty("DXE")
-    val dxeBlock: DxeBlock? = null)
+    val dxeBlock: DxeBlock? = null
+)

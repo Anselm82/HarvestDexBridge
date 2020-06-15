@@ -4,7 +4,12 @@ import com.honeywell.usbakerydex.versatiledex.utils.*
 import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
 import com.honeywell.usbakerydex.versatiledex.utils.validLength
 
-data class Stop(private val number: String, private val customer: Customer, private val additionalOptions: AdditionalOptions?, private val invoices: List<Invoice>?) {
+data class Stop(
+    private val number: String,
+    private val customer: Customer,
+    private val additionalOptions: AdditionalOptions?,
+    private val invoices: List<Invoice>?
+) {
 
     companion object {
         const val SECTION = "Stop"
@@ -21,7 +26,7 @@ data class Stop(private val number: String, private val customer: Customer, priv
             stop += "$STOP $number$NEW_LINE$NEW_LINE"
             stop += "$customer$NEW_LINE"
             stop += additionalOptions
-            if(!invoices.isNullOrEmpty())
+            if (!invoices.isNullOrEmpty())
                 stop += invoices.joinToString("\n") { invoice -> invoice.toString() }
             return stop
         } else {

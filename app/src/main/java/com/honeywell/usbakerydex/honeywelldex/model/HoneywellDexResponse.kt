@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 data class HoneywellDexResponse(
     @JsonProperty("ReceiveDexData")
-    var receiveDexData : ReceiveDexData? = null
+    var receiveDexData: ReceiveDexData? = null
 )

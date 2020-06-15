@@ -34,7 +34,7 @@ enum class HoneywellUnitOfMeasure(val value: String) {
     UNIT("UN");
 
     companion object {
-        fun fromValue(value: String) : HoneywellUnitOfMeasure {
+        fun fromValue(value: String): HoneywellUnitOfMeasure {
             return values().first { it.value == value }
         }
     }

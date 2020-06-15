@@ -2,6 +2,8 @@ package com.honeywell.usbakerydex.honeywelldex
 
 import android.util.Log
 import com.honeywell.usbakerydex.DexConnectionService
+import com.honeywell.usbakerydex.dex.model.extract
+import com.honeywell.usbakerydex.dex.model.getIgnoreCase
 import com.honeywell.usbakerydex.honeywelldex.utils.HoneywellHandlingMethodCodes
 import com.honeywell.usbakerydex.honeywelldex.utils.HoneywellReferenceNumberQualifier
 import com.honeywell.usbakerydex.honeywelldex.utils.HoneywellTypeFlag
@@ -12,7 +14,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HKey(val value: String) {
+class HKey {
     companion object {
         const val ADJUSTMENTS = "adjustments"
         const val MTX = "mtx"
@@ -60,7 +62,6 @@ class HKey(val value: String) {
         const val _11 = "11"
         const val _12 = "12"
     }
-
 }
 
 class HoneywellParser {
@@ -68,40 +69,7 @@ class HoneywellParser {
 
     companion object {
 
-        private fun getIgnoreCase(jsonObject: JSONObject, property: String?): String? {
-            val keys: Iterator<*> = jsonObject.keys()
-            while (keys.hasNext()) {
-                val key = keys.next() as String
-                if (key.equals(property, ignoreCase = true)) {
-                    return key
-                }
-            }
-            return null
-        }
 
-        private fun <T : Any> extract(
-            jsonObject: JSONObject,
-            key: String,
-            default: Any?,
-            clazz: Class<T>
-        ): Any? {
-            val exactKey =
-                getIgnoreCase(
-                    jsonObject,
-                    key
-                )
-            if (exactKey != null && jsonObject.has(exactKey)) {
-                return when (clazz) {
-                    String::class.java -> jsonObject.getString(exactKey)
-                    Long::class.java -> jsonObject.getLong(exactKey)
-                    Int::class.java -> jsonObject.getInt(exactKey)
-                    Double::class.java -> jsonObject.getDouble(exactKey)
-                    Boolean::class.java -> jsonObject.getBoolean(exactKey)
-                    else -> jsonObject.get(exactKey)
-                }
-            }
-            return default
-        }
 
         fun fromJSON(rootJsonObject: JSONObject): HoneywellDexRequest {
             val dexRequest = HoneywellDexRequest(
@@ -131,33 +99,33 @@ class HoneywellParser {
                     extract(
                         initializationJSONObject,
                         HKey.COM_METHOD,
-                        "BTLE",
-                        String::class.java
+                        String::class.java,
+                        "BTLE"
                     ) as String,
                     extract(
                         initializationJSONObject,
                         HKey.EVENT_SOURCE_ID,
-                        DexConnectionService.EVENT_SEND,
-                        Int::class.java
+                        Int::class.java,
+                        DexConnectionService.EVENT_SEND
                     ) as Int,
                     extract(
                         initializationJSONObject,
                         HKey.INI_FILE,
-                        "//mnt/sdcard//Android//data//DSD12//config.ini",
-                        String::class.java
+                        String::class.java,
+                        "//mnt/sdcard//Android//data//DSD12//config.ini"
                     ) as String,
                     extract(
                         initializationJSONObject,
                         HKey.INSTANCE_NAME,
-                        "DEX",
-                        String::class.java
+                        String::class.java,
+                        "DEX"
                     ) as String,
                     extract(
                         initializationJSONObject,
                         HKey.SYNCH_TYPE,
-                        2,
-                        Int::class.java
-                    ) as Int
+                        Int::class.java,
+                        2
+                        ) as Int
                 )
             }
             return null
@@ -189,26 +157,26 @@ class HoneywellParser {
                         extract(
                             retailerJsonObject,
                             HKey.RETAILER_COMMUNICATIONS_ID,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             retailerJsonObject,
                             HKey.RETAILER_DUNS_NUMBER,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             retailerJsonObject,
                             HKey.RETAILER_LOCATION,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             retailerJsonObject,
                             HKey.RETAILER_DEX_VERSION,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String
                     )
                 }
@@ -218,26 +186,26 @@ class HoneywellParser {
                         extract(
                             supplierJsonObject,
                             HKey.SUPPLIER_COMMUNICATIONS_ID,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             supplierJsonObject,
                             HKey.SUPPLIER_DUNS_NUMBER,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             supplierJsonObject,
                             HKey.SUPPLIER_LOCATION,
-                            "",
-                            String::class.java
+                            String::class.java,
+                            ""
                         ) as String,
                         extract(
                             supplierJsonObject,
                             HKey.SUPPLIER_SIGNATURE_KEY,
-                            0L,
-                            Long::class.java
+                            Long::class.java,
+                            0L
                         ) as Long
                     )
                 }
@@ -246,21 +214,19 @@ class HoneywellParser {
                     extract(
                         configJsonObject,
                         HKey.TRANSACTION_CONTROL_NUMBER,
-                        1L,
-                        Long::class.java
+                        Long::class.java,
+                        1L
                     ) as Long,
                     extract(
                         configJsonObject,
                         HKey.TRANSMISSION_CONTROL_NUMBER,
-                        1L,
-                        Long::class.java
+                        Long::class.java,
+                        1L
                     ) as Long,
-                    extract(
+                    extract<String>(
                         configJsonObject,
-                        HKey.TEST_INDICATOR,
-                        "",
-                        String::class.java
-                    ) as String //test indicator should be on DXS block, Singleton/parameter and then capture from there?
+                        HKey.TEST_INDICATOR
+                    ) //test indicator should be on DXS block, Singleton/parameter and then capture from there?
                 )
             }
             return null
@@ -867,6 +833,7 @@ class HoneywellParser {
         /**
          * Probably can be ignored because versatile doesn't need it.
          */
+        @Deprecated
         private fun readDxs(transactionJsonObject: JSONObject): DxsBlock? {
             val dxs =
                 getIgnoreCase(
@@ -921,5 +888,7 @@ private fun String.convertToTypeFlag(): HoneywellTypeFlag = HoneywellTypeFlag.fr
 private fun String.convertToHandlingMethod(): HoneywellHandlingMethodCodes =
     HoneywellHandlingMethodCodes.fromValue(this)
 
-private fun String.convertToTimestamp(): Long = SimpleDateFormat("YYYYMMDD", Locale.US).parse(this)?.time ?: Date().time
+private fun String.convertToTimestamp(): Long =
+    SimpleDateFormat("YYYYMMDD", Locale.US).parse(this)?.time ?: Date().time
+
 private fun Date.convertToString(): String = SimpleDateFormat("YYYYMMDD", Locale.US).format(this)
