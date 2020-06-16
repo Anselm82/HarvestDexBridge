@@ -1,5 +1,6 @@
 package com.honeywell.usbakerydex.dex.model.blocks
 
+
 data class InnerRecord894(
     var st: ST? = null, //Transaction set header    M-1
     var g82: G82? = null, //Delivery/Return base record identifier  M-1
