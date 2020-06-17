@@ -20,19 +20,19 @@ data class Record895(
 {
     companion object {
         fun fromHoneywell(jsonString: String) : Record895 {
-
+            TODO()
         }
 
         fun fromVersatile(jsonString: String) : Record895 {
-
+            TODO()
         }
     }
 }
 
 internal fun Record895.toVersatile(): String {
-
+    TODO()
 }
 
 internal fun Record895.toHoneywell(): JSONObject {
-
+    TODO()
 }

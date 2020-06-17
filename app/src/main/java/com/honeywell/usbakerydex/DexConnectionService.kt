@@ -89,8 +89,8 @@ class DexConnectionService : Service() {
     }
 
     private fun getRouteData(): String {
-        val content = HoneywellVersatileConverter.toVersatileDexRequest(honeywellDexRequest)
-            .toString()
+        val content = //HoneywellVersatileConverter.toVersatileDexRequest(honeywellDexRequest)
+            "".toString()
         Log.i("DEX", content)
         return content
     }

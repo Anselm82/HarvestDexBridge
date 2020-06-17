@@ -23,7 +23,7 @@ data class G82(
     var purchaseOrderDate: String? = null, //10    O-[8-8] CCYYMMDD
     var shipmentMethodOfPayment: String? = null, //11  O-[2-2]
     var methodOfPaymentCode: String? = null //12    O-[1] if present, the payment must be made on delivery
-) {
+) : RecordIdentifier() {
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.creditDebitFlagCode =

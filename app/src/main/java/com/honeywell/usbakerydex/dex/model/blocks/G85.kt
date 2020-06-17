@@ -5,7 +5,6 @@ data class G85(var integrityCheckValue: String?) {
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.integrityCheckValue = value
-
         }
     }
 

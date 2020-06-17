@@ -46,7 +46,13 @@ class HKey {
         const val TYPE = "type"
         const val ST = "st"
         const val G82 = "g82"
+        const val G83 = "g83"
         const val G84 = "g84"
+        const val G85 = "g85"
+        const val G86 = "g86"
+        const val G87 = "g87"
+        const val G88 = "g88"
+        const val G89 = "g89"
         const val DXS = "dxs"
         const val DXE = "dxe"
         const val _01 = "01"
@@ -390,51 +396,31 @@ class HoneywellParser {
             return MtxBlock(
                 extract(
                     mtxJSONObject,
-                    HKey.MTX,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey.MTX
+                )
             )
         }
 
         private fun readN9Block(n9JSONObject: JSONObject): N9Block? {
             return N9Block(
-                (extract(
+                extract<String>(
                     n9JSONObject,
-                    HKey._01,
-                    "",
-                    String::class.java
-                ) as String).convertToHoneywellReferenceNumberQualifier(),
-                (extract(
-                    n9JSONObject,
-                    HKey._02,
-                    "",
-                    String::class.java
-                ) as String),
+                    HKey._01)!!.convertToHoneywellReferenceNumberQualifier(),
                 extract(
                     n9JSONObject,
-                    HKey._03,
-                    "",
-                    String::class.java
-                ) as String,
-                (extract(
-                    n9JSONObject,
-                    HKey._04,
-                    "",
-                    String::class.java
-                ) as String).convertToTimestamp(),
-                (extract(
-                    n9JSONObject,
-                    HKey._05,
-                    "",
-                    String::class.java
-                ) as String),
+                    HKey._02),
                 extract(
                     n9JSONObject,
-                    HKey._06,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._03),
+                extract<String>(
+                    n9JSONObject,
+                    HKey._04)!!.convertToTimestamp(),
+                extract(
+                    n9JSONObject,
+                    HKey._05),
+                extract(
+                    n9JSONObject,
+                    HKey._06)
             )
         }
 
@@ -477,86 +463,49 @@ class HoneywellParser {
             if (ucsType.length > 3) { //No idea why...
                 g8303 = extract(
                     itemJSONObject,
-                    HKey._03,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._03)
                 g8305 = extract(
                     itemJSONObject,
-                    HKey._05,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._05)
                 g8307 = extract(
                     itemJSONObject,
-                    HKey._07,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._07)
                 g8309 = extract(
                     itemJSONObject,
-                    HKey._09,
-                    0,
-                    Int::class.java
-                ) as Int
+                    HKey._09)
                 g8311 = extract(
                     itemJSONObject,
-                    HKey._11,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._11)
                 g8312 = extract(
                     itemJSONObject,
-                    HKey._12,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._12)
             }
             return ItemBlock(
                 adjustmentMap,
                 extract(
                     itemJSONObject,
-                    HKey.MATNO,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey.MATNO),
                 extract(
                     itemJSONObject,
-                    HKey.TYPE,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey.TYPE),
                 itemCount,
                 extract(
                     itemJSONObject,
                     HKey._02,
-                    -1.0,
-                    Double::class.java
-                ) as Double,
+                    -1.0)!!,
                 extract(
                     itemJSONObject,
-                    HKey._04,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._04)!!,
                 extract(
                     itemJSONObject,
-                    HKey._06,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._06)!!,
                 extract(
                     itemJSONObject,
                     HKey._08,
-                    if (ucsType == "894") 0.0 else -1.0,
-                    Double::class.java
-                ) as Double,
+                    if (ucsType == "894") 0.0 else -1.0)!!,
                 extract(
                     itemJSONObject,
-                    HKey._10,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._10),
                 if (!g8303.isNullOrBlank()) HoneywellUnitOfMeasure.fromValue(g8303) else null,
                 g8305,
                 g8307,
@@ -606,70 +555,40 @@ class HoneywellParser {
             return G72Block(
                 extract(
                     adjustmentJSONObject,
-                    HKey._01,
-                    0,
-                    Int::class.java
-                ) as Int,
-                (extract(
+                    HKey._01)!!,
+                extract<String>(
                     adjustmentJSONObject,
-                    HKey._02,
-                    "",
-                    String::class.java
-                ) as String).convertToHandlingMethod(),
+                    HKey._02)!!.convertToHandlingMethod(),
                 extract(
                     adjustmentJSONObject,
-                    HKey._03,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._03),
                 extract(
                     adjustmentJSONObject,
-                    HKey._04,
-                    "",
-                    String::class.java
-                ) as String,
-                (extract(
+                    HKey._04),
+                extract(
                     adjustmentJSONObject,
-                    HKey._05,
-                    0.0,
-                    Double::class.java
-                ) as Double),
-                (extract(
+                    HKey._05),
+                extract(
                     adjustmentJSONObject,
                     HKey._06,
-                    0.0,
-                    Double::class.java
-                ) as Double),
+                    0.0),
                 extract(
                     adjustmentJSONObject,
-                    HKey._07,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._07),
                 extract(
                     adjustmentJSONObject,
                     HKey._08,
-                    0.0,
-                    Double::class.java
-                ) as Double,
-                (extract(
-                    adjustmentJSONObject,
-                    HKey._09,
-                    0.0,
-                    Double::class.java
-                ) as Double),
-                (extract(
-                    adjustmentJSONObject,
-                    HKey._10,
-                    0.0,
-                    Double::class.java
-                ) as Double),
+                    0.0),
                 extract(
                     adjustmentJSONObject,
-                    HKey._11,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._09,
+                    0.0),
+                extract(
+                    adjustmentJSONObject,
+                    HKey._10),
+                extract(
+                    adjustmentJSONObject,
+                    HKey._11)
             )
         }
 
@@ -677,123 +596,76 @@ class HoneywellParser {
             return STBlock(
                 extract(
                     stJSONObject,
-                    HKey._01,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._01)!!,
                 extract(
                     stJSONObject,
                     HKey._02,
-                    0L,
-                    Long::class.java
-                ) as Long,
+                    0L),
                 extract(
                     stJSONObject,
-                    HKey._03,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._03)
             )
         }
 
         private fun readG84Block(g84JSONObject: JSONObject): G84Block? {
             return G84Block(
-                (extract(
+                extract(
                     g84JSONObject,
                     HKey._01,
-                    0.0,
-                    Double::class.java
-                ) as Double),
-                (extract(
+                    0.0),
+                extract(
                     g84JSONObject,
                     HKey._02,
-                    0.0,
-                    Double::class.java
-                ) as Double),
-                (extract(
+                    0.0),
+                extract(
                     g84JSONObject,
                     HKey._03,
-                    0.0,
-                    Double::class.java
-                ) as Double)
+                    0.0)
             )
         }
 
         private fun readG82Block(g82JSONObject: JSONObject): G82Block {
             val dateNow = Date().convertToString()
             return G82Block(
-                (extract(
+                extract<String>(
                     g82JSONObject,
-                    HKey._01,
-                    "",
-                    String::class.java
-                ) as String).convertToTypeFlag(),
+                    HKey._01)!!.convertToTypeFlag(),
                 extract(
                     g82JSONObject,
-                    HKey._02,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._02)!!,
                 extract(
                     g82JSONObject,
-                    HKey._03,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._03),
                 extract(
                     g82JSONObject,
-                    HKey._04,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._04),
                 extract(
                     g82JSONObject,
-                    HKey._05,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._05),
                 extract(
                     g82JSONObject,
-                    HKey._06,
-                    "",
-                    String::class.java
-                ) as String,
-                (extract(
+                    HKey._06),
+                extract<String>(
                     g82JSONObject,
                     HKey._07,
-                    dateNow,
-                    String::class.java
-                ) as String).convertToTimestamp(),
-                (extract(
+                    dateNow)!!.convertToTimestamp(),
+                extract<String>(
                     g82JSONObject,
                     HKey._08,
-                    dateNow,
-                    String::class.java
-                ) as String).convertToTimestamp(),
+                    dateNow)!!.convertToTimestamp(),
                 extract(
                     g82JSONObject,
-                    HKey._09,
-                    "",
-                    String::class.java
-                ) as String,
-                (extract(
+                    HKey._09),
+                extract<String>(
                     g82JSONObject,
                     HKey._10,
-                    dateNow,
-                    String::class.java
-                ) as String).convertToTimestamp(),
+                    dateNow)!!.convertToTimestamp(),
                 extract(
                     g82JSONObject,
-                    HKey._01,
-                    "",
-                    String::class.java
-                ) as String,
+                    HKey._11),
                 extract(
                     g82JSONObject,
-                    HKey._12,
-                    "",
-                    String::class.java
-                ) as String
+                    HKey._12)
             )
         }
 
@@ -819,9 +691,7 @@ class HoneywellParser {
                         extract(
                             dxeContent,
                             HKey._01,
-                            0L,
-                            Long::class.java
-                        ) as Long
+                            0L)!!
                     )
                 }
             } else {
@@ -833,7 +703,7 @@ class HoneywellParser {
         /**
          * Probably can be ignored because versatile doesn't need it.
          */
-        @Deprecated
+        @Deprecated("asljasl")
         private fun readDxs(transactionJsonObject: JSONObject): DxsBlock? {
             val dxs =
                 getIgnoreCase(
@@ -856,21 +726,15 @@ class HoneywellParser {
                         extract(
                             dxsContent,
                             HKey._04,
-                            0L,
-                            Long::class.java
-                        ) as Long,
-                        extract(
+                            0L),
+                        extract<String?>(
                             dxsContent,
                             HKey._05,
-                            null,
-                            String::class.java
-                        ) as String,
-                        extract(
+                            null),
+                        extract<String?>(
                             dxsContent,
                             HKey._06,
-                            null,
-                            String::class.java
-                        ) as String
+                            null)
                     )
                 }
             } else {

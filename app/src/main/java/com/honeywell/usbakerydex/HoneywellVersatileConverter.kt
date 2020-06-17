@@ -11,7 +11,7 @@ import com.honeywell.usbakerydex.versatiledex.utils.*
 import java.lang.Exception
 import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
 
-class HoneywellVersatileConverter {
+/*class HoneywellVersatileConverter {
 
     companion object {
 
@@ -291,8 +291,8 @@ class HoneywellVersatileConverter {
         private fun getG85Block(
             invoice: HONInvoice
         ): G85Block? {
-            return G85Block(
-                invoice.adjustments
+            return G85Block(null
+                //invoice.adjustments
             )
         }
 
@@ -323,20 +323,20 @@ class HoneywellVersatileConverter {
             invoice: HONInvoice,
             linesByInvoice: List<VersatileDexResponseEntry>
         ): List<G89Block>? {
-            val g89Blocks = mutableListOf<G89Block>()
+            val g89Blocks = mutableListOf<G89Block?>()
             val itemAdjustments = linesByInvoice.groupBy { (it.params[VersatileResponseParams.ITEM_INDEX] as String?)!!.toInt() }
             for (itemAdjustment in itemAdjustments.entries) {
                 val g89Block = getG89Block(invoice, itemAdjustment.key, itemAdjustment.value)
                 g89Blocks.add(g89Block)
             }
-            return g89Blocks
+            return null
         }
 
         private fun getG89Block(
             invoice: HONInvoice,
             index: Int,
             itemAdjustments: List<VersatileDexResponseEntry>?
-        ): G89Block {
+        ): G89Block? {
             /*val quantity =
                 (itemAdjustment.params[VersatileResponseParams.QTY] as String?)?.toDoubleOrNull()
             val upc = itemAdjustment.params[VersatileResponseParams.UPC] as String?
@@ -375,7 +375,7 @@ class HoneywellVersatileConverter {
                     g72List = g72List
                 )
             }
-
+/*
             for(key in itemAdjustments.keys) {
                 val item = itemAdjustment[key]
                 if (item != null) {
@@ -397,9 +397,10 @@ class HoneywellVersatileConverter {
                     }
                 }
 
-                /**/
-            }
 
+            }
+*/
+            return null
         }
 
         private fun getG72AdjustmentsFor(
@@ -440,14 +441,14 @@ class HoneywellVersatileConverter {
             val isRate = itemAdjustment.params[VersatileResponseParams.RATE] != null
             val isTotal = itemAdjustment.params[VersatileResponseParams.PRICE] != null
             val code = if(isTotal) 501 else if(isRate) if(originalItem.type == ItemType.SAMPLES.value) 1 else 97 else 0
-            when(itemAdjustment.adjustmentType) {
+            /*when(itemAdjustment.adjustmentType) {
                 VersatileResponseAdjustmentType.ADJ_PRICE -> ,
                     VersatileResponseAdjustmentType.ADJ_ALLOWANCE -> ,
             VersatileResponseAdjustmentType.ADJ_QTY ->,
                 VersatileResponseAdjustmentType.ADJ_CHARGE ->,
             VersatileResponseAdjustmentType.ADJ_DEL_ITEM ->
 
-            }
+            }*/
             return G72Block(
                 code,
                 HoneywellHandlingMethodCodes.OFF_INVOICE,
@@ -534,3 +535,4 @@ private fun HoneywellTypeFlag.convertToVersatileOrderType() = when (this) {
 }
 
 private fun Double?.isNotNullAndPositive() = if (this != null) this >= 0 else false
+ */

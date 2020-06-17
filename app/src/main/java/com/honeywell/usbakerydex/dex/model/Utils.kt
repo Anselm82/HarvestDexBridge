@@ -4,6 +4,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.Checksum
+import kotlin.reflect.typeOf
 
 const val CRLF = "\r\n"
 const val FUNCTIONAL_GROUP = "DX"
@@ -46,14 +47,32 @@ internal inline fun <reified T> extract(
             key
         )
     if (exactKey != null && jsonObject.has(exactKey)) {
-        return when (T::class.java) {
-            String::class.java -> jsonObject.getString(exactKey)
-            Long::class.java -> jsonObject.getLong(exactKey)
-            Int::class.java -> jsonObject.getInt(exactKey)
-            Double::class.java -> jsonObject.getDouble(exactKey)
-            Boolean::class.java -> jsonObject.getBoolean(exactKey)
-            else -> jsonObject.get(exactKey)
-        } as T?
+        if(jsonObject.get(exactKey) !is T) {
+            val value = jsonObject.get(exactKey)
+            val objectClass = T::class.java.toString()
+            val start = objectClass.lastIndexOf(".") + 1
+            if(start > -1) {
+                val className = objectClass.substring(start)
+                return when (className) {
+                    "Double" -> value.toString().toDouble()
+                    "Integer",
+                    "Int" -> value.toString().toInt()
+                    "Long" -> value.toString().toLong()
+                    "Boolean" -> value.toString().toBoolean()
+                    else -> "$value"
+                } as T?
+            }
+            return null
+        } else {
+            return when (T::class.java) {
+                Long::class.java -> jsonObject.getLong(exactKey)
+                Int::class.java -> jsonObject.getInt(exactKey)
+                Double::class.java -> jsonObject.getDouble(exactKey)
+                Boolean::class.java -> jsonObject.getBoolean(exactKey)
+                String::class.java -> jsonObject.getString(exactKey)
+                else -> jsonObject.get(exactKey)
+            } as T?
+        }
     }
     return default
 }

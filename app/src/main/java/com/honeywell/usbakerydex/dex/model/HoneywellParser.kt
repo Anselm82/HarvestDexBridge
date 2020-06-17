@@ -20,7 +20,7 @@ class HoneywellParser {
                 while (adjustmentsKeys.hasNext()) {
                     val adjustmentNumber = adjustmentsKeys.next() as String
                     val jsonAdjustment = itemAdjustmentsJSONObject.getJSONObject(adjustmentNumber)
-                    val g72 = readG72(jsonAdjustment, adjustmentNumber.toIntOrNull())
+                    val g72 = readG72(jsonAdjustment)
                     itemAdjustmentList.add(g72)
                 }
                 return itemAdjustmentList
@@ -124,7 +124,7 @@ class HoneywellParser {
             )
         }
 
-        fun readG72(jsonAdjustment: JSONObject, adjustmentNumber: Int? = 1): G72 {
+        fun readG72(jsonAdjustment: JSONObject): G72 {
             return G72(
                 extract(jsonAdjustment, HKey._01),
                 extract(jsonAdjustment, HKey._02),
@@ -163,8 +163,9 @@ class HoneywellParser {
             return null
         }
 
-        fun readG85(innerRecord: InnerRecord894): G85 {
-            TODO("Calculate using CRC16 algorithm")
+        //TODO("Calculate using CRC16 algorithm")
+        fun readG85(innerRecord: InnerRecord): G85 {
+            return G85("1234")
         }
 
         fun readSignature(rootJsonObject: JSONObject): String? {
@@ -186,6 +187,18 @@ class HoneywellParser {
                 }
             }
             return null
+        }
+
+        fun readG87(rootJsonObject: JSONObject): G87? {
+            TODO("Parse")
+        }
+
+        fun readG88(rootJsonObject: JSONObject): ExtraInformation? {
+            TODO("Parse")
+        }
+
+        fun readG89(jsonItem: JSONObject, index: Int?, ucsType: String): G89? {
+            TODO("Parse")
         }
     }
 }

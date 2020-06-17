@@ -6,7 +6,7 @@ data class G88(
     var purchaseOrderNumber: String? = null, //03 O[1-22] from 8209
     var purchaseOrderDate: String? = null, //04 O[8] YYYYMMDD G8210
     var receiverLocationNumber: String? = null //05 O[1-6] G8204
-) {
+) : ExtraInformation() {
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.physicalDeliveryOrReturnDate = value
