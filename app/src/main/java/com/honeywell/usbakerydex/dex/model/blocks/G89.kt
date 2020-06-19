@@ -17,7 +17,12 @@ data class G89(
     var innerPack: Int? = null, //10 inner pack [1-20]
     var caseIDQualifier: String? = null, //11  M-2/2 used with G8911  only needed if there is some change on it corresponding to 8311
     var caseID: String? = null //12 X[1-48]  only needed if there is some change on it corresponding to 8312
-) : ItemDetailRecord() {
+) : ItemDetailRecord {
+
+    init {
+        putString("05", this.productIDQualifier)
+        putString("11", this.caseIDQualifier)
+    }
 
     fun putInt(key: String, value: Int?) {
         when (key) {

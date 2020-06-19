@@ -10,7 +10,7 @@ data class Invoice(
     private var id: String,
     private var orderType: VersatileOrderType = VersatileOrderType.DELIVERY,
     private var number: String,
-    private var date: Long,
+    private var date: String,
     private var userCanAdjustQty: String?,
     private var userCanAdjustCost: String?,
     private var userCanAdjustUOM: String?,
@@ -30,7 +30,7 @@ data class Invoice(
 
     private fun validId() = id.validLength(22) && id.isAlphanumeric()
     private fun validType() = VersatileOrderType.values().contains(orderType)
-    private fun validDate() = date != 0L
+    private fun validDate() = date.toLong() != 0L
     private fun validNumber(): Boolean {
         return !number.isBlank() && number.validLength(22) && number.isAlphanumeric()
     }
@@ -62,14 +62,14 @@ data class Invoice(
             invoice += "$INVOICE $id$NEW_LINE"
             invoice += "$TYPE $orderType$NEW_LINE"
             if (validNumber() && validDate())
-                invoice += "$NUMBER \"$number\" ${date.toYYYYMMDD()} $NEW_LINE"
+                invoice += "$NUMBER \"$number\" ${date} $NEW_LINE"
             if (validUserCanAdjustQty())
                 invoice += "$USER_CAN_ADJUST_QTY ${userCanAdjustQty!!.extractVersatileBooleanValue()}$NEW_LINE"
             if (validUserCanAdjustCost())
                 invoice += "$USER_CAN_ADJUST_COST ${userCanAdjustCost!!.extractVersatileBooleanValue()}$NEW_LINE"
             if (validUserCanAdjustUOM())
                 invoice += "$USER_CAN_ADJUST_UOM ${userCanAdjustUOM!!.extractVersatileBooleanValue()}$NEW_LINE"
-            if (validInvAdjustments() && invAdjustments.isNullOrEmpty())
+            if (validInvAdjustments() && !invAdjustments.isNullOrEmpty())
                 invoice += NEW_LINE + invAdjustments!!.joinToString("\n") { adjustment -> adjustment.toString() }
             if (!items.isNullOrEmpty())
                 invoice += NEW_LINE + items!!.joinToString("\n") { item -> item.toString() }

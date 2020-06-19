@@ -123,23 +123,43 @@ enum class VersatileResponseAdjustmentType(val value: String) {
     ADJ_POTD("ADJ_POTD"),
     ADJ_PONUM("ADJ_PONUM"),
     ADJ_PODATE("ADJ_PODATE"),
-    ADJ_LOCATION("ADJ_LOCATION")
+    ADJ_LOCATION("ADJ_LOCATION");
+
+    companion object {
+        fun fromValue(value: String) = values().first { it.value == value }
+    }
 
 }
 
 enum class VersatileResponseCode(val value: String) {
     USR("USR"),
-    SVR("SVR")
+    SVR("SVR");
+
+    companion object {
+        fun fromValue(value: String) = values().first { it.value == value }
+    }
 }
 
 enum class VersatilePackType(val value: String) {
     CASE("CA"),
-    EACH("EA")
+    EACH("EA");
+
+    companion object {
+        fun fromValue(value: String): VersatilePackType {
+            return values().first { value.equals(it.value, true) }
+        }
+    }
 }
 
 enum class VersatileOrderType(val value: String) {
     DELIVERY("DELIVERY"),
-    RETURN("RETURN")
+    RETURN("RETURN");
+
+    companion object {
+        fun fromValue(value: String): VersatileOrderType {
+            return values().first { it.value.startsWith(value, true) }
+        }
+    }
 }
 
 enum class VersatileAdjustmentType(val value: Char) {
@@ -170,7 +190,7 @@ enum class VersatileAdjustmentFlag(val value: Char) {
     RATE_PER_QUANTITY('$')
 }
 
-internal fun Long.toYYYYMMDD() = SimpleDateFormat("YYYYMMDD", Locale.US).format(this)
+internal fun Long.toYYYYMMDD() = SimpleDateFormat("CCYYMMDD", Locale.US).format(this)
 
 internal fun String.extractVersatileBooleanValue(): String {
     val char = this.substring(0, 1)
@@ -243,12 +263,3 @@ internal fun String.validLength(min: Int, max: Int): Boolean {
 }
 
 internal fun String.cleanUCS() = this.toUpperCase(Locale.US).replace("UCS", "")
-
-fun main(args: Array<String>) {
-    val response = "140701:015830 894:USR 1007 ADJ_QTY 2 1 2\n" +
-            "140701:015831 894:USR 1007 ADJ_QTY 4 1 4\n" +
-            "140701:015832 895:SVR 1007 ADJ_LOCATION 102 100\n" +
-            "140701:015832 895:USR 1007 INVC_STATUS 3"
-    val result = VersatileConverter.toVersatileDexResponse(response, 5010)
-    result.lines.forEach { item -> print(item.toString()) }
-}

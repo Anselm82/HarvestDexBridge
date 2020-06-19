@@ -9,7 +9,12 @@ data class N9(
     var date: String? = null, //04 YYYYMMDD O-[8-8]
     var time: String? = null, //05 hhmmssdd depends [4-8]
     var timeCode: String? = null //06 UTC timezone where + is P or - is O-[2-2]
-) : ExtraInformation() {
+) : ExtraInformation {
+
+    init {
+        putString("01", this.referenceIdentificationQualifier)
+    }
+
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.referenceIdentificationQualifier =

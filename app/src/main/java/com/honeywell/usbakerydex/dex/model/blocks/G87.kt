@@ -10,7 +10,13 @@ data class G87(
     var integrityCheck: String?, //04 M[1-12] should contain the same value than 8501 of the preceding ack/adj record or of the base record if this is the first one. CRC16
     var adjustmentNumber: Int?, //05 M[1] sequential number of the adjustment. Max of 9 adjustments/acks
     var receiverDeliveryOrReturnNumber: String? = null //06 O[1-22] optional to allow lazy assignment.
-) : RecordIdentifier() {
+) : RecordIdentifier {
+
+    init {
+        putString("01", this.initiatorCode)
+        putString("02", this.creditDebitFlag)
+    }
+
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.initiatorCode = if (value.isNullOrBlank() || value !in InitiatorCode.values()) null else value

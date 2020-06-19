@@ -20,9 +20,13 @@ data class G83(
     var cashRegisterItemDescription: String? = "NO DESC", //10 item description [1-20]
     var caseIDQualifier: String? = null, //11  M-2/2 used with G8311
     var caseID: String? = null, //12 X[1-48]
-    var innerPack: Int? = null
-) : ItemDetailRecord() //13 Number of eaches per innerPack
+    var innerPack: Int? = null //13 Number of eaches per innerPack
+) : ItemDetailRecord
 {
+    init {
+        putString("05", this.productIDQualifier)
+        putString("11", this.caseIDQualifier)
+    }
 
     fun putInt(key: String, value: Int?) {
         when (key) {
@@ -61,7 +65,7 @@ data class G83(
             "03" -> this.unitOfMeasure = value
             "04" -> this.upc = value
             "05" -> this.productIDQualifier =
-                if (value.isNullOrBlank() || value !in ProductIDQualifier.values()) null else value
+                if (value.isNullOrBlank() || value !in ProductIDQualifier.values()) ProductIDQualifier.VENDOR_ITEM_NUMBER else value
             "06" -> this.productID = value
             "07" -> this.upcCaseCode = value
             "10" -> this.cashRegisterItemDescription = value

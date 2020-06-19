@@ -9,9 +9,9 @@ import com.honeywell.usbakerydex.versatiledex.utils.validLength
 data class Item(
     val dexVersion: String = "5010",
     val itemCode: String,
-    val caseCode: String? = "",
-    val caseCount: String? = "",
-    val itemsByCase: String? = "",
+    val caseCode: String = "",
+    val caseCount: String = "",
+    val itemsByCase: String = "",
     val description: String,
     val quantity: String,
     val price: String,
@@ -34,7 +34,11 @@ data class Item(
     }
 
     private fun validItem(): Boolean {
-        return validItemCode() && validCaseCode() && validCaseCount() && validItemsByCase()
+        val code = validItemCode()
+        val case = validCaseCode()
+        val count = validCaseCount()
+        val items = validItemsByCase()
+        return code && case && count && items
     }
 
     private fun validItemCode() = if (dexVersion.cleanUCS().toInt() >= 5010) //GTIN
@@ -78,8 +82,13 @@ data class Item(
 
     private fun validPackType() = VersatilePackType.values().contains(packType)
 
-    private fun isMandatoryDataSetAndValid() =
-        validItem() && validQuantity() && validPrice() && validPackType()
+    private fun isMandatoryDataSetAndValid() : Boolean {
+        val item = validItem()
+        val qty = validQuantity()
+        val price = validPrice()
+        val pack = validPackType()
+        return item && qty && price && pack
+    }
 
     override fun toString(): String {
         if (isMandatoryDataSetAndValid()) {

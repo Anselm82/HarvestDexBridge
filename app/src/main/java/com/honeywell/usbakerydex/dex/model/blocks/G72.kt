@@ -23,6 +23,12 @@ data class G72(
     var dollarBasisForPercent: Double? = null, //10 X[1-9] dollar basis to be used in the percent calculation of the allowance/charge or tax. Used with 9, to apply the percent to this dollar basis.
     var optionNumber: String? = null //11 O[1/20] number of the selected promotion when more than one is available. Makes 03 required
 ){
+    init {
+        putInt("01", this.allowanceOrChargeCode)
+        putString("02", this.handlingMethod)
+        putString("07", this.unitOfMeasure)
+    }
+
     fun putString(key: String, value: String?) {
         when (key) {
             "02" -> this.handlingMethod = if (value.isNullOrBlank() || value !in MethodOfHandling.values()) null else value

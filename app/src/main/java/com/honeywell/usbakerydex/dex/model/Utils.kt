@@ -1,5 +1,8 @@
 package com.honeywell.usbakerydex.dex.model
 
+import com.honeywell.usbakerydex.dex.model.blocks.G72
+import com.honeywell.usbakerydex.honeywelldex.model.G72Block
+import com.honeywell.usbakerydex.versatiledex.utils.*
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,8 +26,6 @@ internal fun withLeadingZeros(value: String?, size: Int): String? {
     return duns
 }
 
-internal fun Date.toYYYYMMDD() = SimpleDateFormat(DATE_FORMAT, Locale.US).format(this)
-
 internal fun getIgnoreCase(jsonObject: JSONObject, property: String?): String? {
     val keys: Iterator<*> = jsonObject.keys()
     while (keys.hasNext()) {
@@ -36,6 +37,21 @@ internal fun getIgnoreCase(jsonObject: JSONObject, property: String?): String? {
     return null
 }
 
+internal fun Date.toYYYYMMDD() = SimpleDateFormat(DATE_FORMAT, Locale.US).format(this)
+
+internal fun Double?.isNotNullAndPositive() = if (this != null) this >= 0 else false
+
+internal fun String.toVersatileHandlingCode() = VersatileHandlingCode.fromValue(this)
+
+internal fun String.toVersatilePackType() = VersatilePackType.fromValue(this)
+
+internal fun Long.toYYMMDD_hhmmss() = SimpleDateFormat("YYMMDD:hhmmss", Locale.US).format(this)
+
+internal fun String.toTimestamp() = SimpleDateFormat(DATE_FORMAT, Locale.US).parse(this).time
+
+internal fun String.toVersatileOrderType() = VersatileOrderType.fromValue(this)
+
+//region Data Extractors
 internal inline fun <reified T> extract(
     jsonObject: JSONObject,
     key: String,
@@ -77,30 +93,44 @@ internal inline fun <reified T> extract(
     return default
 }
 
-internal fun <T : Any> extract(
-    jsonObject: JSONObject,
-    key: String,
-    clazz: Class<T>,
-    default: Any? = null
-): Any? {
-    val exactKey =
-        getIgnoreCase(
-            jsonObject,
-            key
-        )
-    if (exactKey != null && jsonObject.has(exactKey)) {
-        return when (clazz) {
-            String::class.java -> jsonObject.getString(exactKey)
-            Long::class.java -> jsonObject.getLong(exactKey)
-            Int::class.java -> jsonObject.getInt(exactKey)
-            Double::class.java -> jsonObject.getDouble(exactKey)
-            Boolean::class.java -> jsonObject.getBoolean(exactKey)
-            else -> jsonObject.get(exactKey)
-        }
-    }
-    return default
+internal fun getVersatileItemFlagForAmount(g72: G72) = when {
+    g72.allowanceOrChargeRate != null -> VersatileAdjustmentFlag.RATE_PER_QUANTITY
+    g72.allowanceOrChargePercent != null -> VersatileAdjustmentFlag.PERCENTAGE
+    else -> VersatileAdjustmentFlag.TOTAL
 }
 
+internal fun getVersatileItemAdjustmentValue(
+    g72: G72,
+    versatileFlag: VersatileAdjustmentFlag
+) = when (versatileFlag) {
+    VersatileAdjustmentFlag.PERCENTAGE -> "${g72.allowanceOrChargePercent}/${g72.dollarBasisForPercent}"
+    VersatileAdjustmentFlag.TOTAL -> g72.allowanceOrChargeTotalAmount
+    VersatileAdjustmentFlag.RATE_PER_QUANTITY -> "${g72.allowanceOrChargeRate}/${g72.allowanceOrChargeQty}"
+}
+
+internal fun getVersatileInvoiceFlagForAmount(g72: G72) = when {
+    g72.allowanceOrChargePercent != null -> VersatileInvoiceAdjustmentFlag.PERCENTAGE
+    else -> VersatileInvoiceAdjustmentFlag.TOTAL
+}
+
+internal fun getVersatileInvoiceAdjustmentValue(
+    g72: G72,
+    versatileFlag: VersatileInvoiceAdjustmentFlag
+) = when (versatileFlag) {
+    VersatileInvoiceAdjustmentFlag.PERCENTAGE -> "${g72.allowanceOrChargePercent}/${g72.dollarBasisForPercent}"
+    VersatileInvoiceAdjustmentFlag.TOTAL -> g72.allowanceOrChargeTotalAmount
+}
+
+internal fun getVersatileTypeFromAmount(g72: G72): VersatileAdjustmentType {
+    if (g72.allowanceOrChargePercent.isNotNullAndPositive() || g72.allowanceOrChargeRate.isNotNullAndPositive()
+        || g72.allowanceOrChargeTotalAmount.isNotNullAndPositive()
+    )
+        return VersatileAdjustmentType.CHARGE
+    return VersatileAdjustmentType.ALLOWANCE
+}
+//endregion
+
+//region Utility Classes
 class UnsupportedElementException() : Exception("G23 segment is not implemented!")
 
 class CRC16 : Checksum {
@@ -167,3 +197,4 @@ class CRC16 : Checksum {
         }
     }
 }
+//endregion

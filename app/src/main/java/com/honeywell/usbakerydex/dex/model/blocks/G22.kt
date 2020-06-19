@@ -9,6 +9,11 @@ data class G22(
     var freeFormMessage : String? = null, //04 O[1-60] text
     var date: String? = null //05 O[8-8] YYYYMMDD date of the effective price. Not used.
 ) {
+
+    init {
+        putString("01", prePricedOptionCode)
+    }
+
     fun putString(key: String, value: String?) {
         when (key) {
             "01" -> this.prePricedOptionCode = if (value.isNullOrBlank() || value !in PrePricedOptionCode.values()) null else value

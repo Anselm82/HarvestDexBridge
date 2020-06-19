@@ -1,9 +1,14 @@
 package com.honeywell.usbakerydex.dex.model
 
 import android.util.Log
+import com.honeywell.usbakerydex.DexConnectionService
 import com.honeywell.usbakerydex.dex.model.blocks.*
 import com.honeywell.usbakerydex.dex.model.vo.TestIndicator
-import com.honeywell.usbakerydex.honeywelldex.HKey
+import com.honeywell.usbakerydex.honeywell.model.Configuration
+import com.honeywell.usbakerydex.honeywell.model.Initialization
+import com.honeywell.usbakerydex.honeywell.model.Retailer
+import com.honeywell.usbakerydex.honeywell.model.Supplier
+import com.honeywell.usbakerydex.honeywell.vo.HKey
 import org.json.JSONObject
 import java.util.*
 
@@ -108,13 +113,19 @@ class HoneywellParser {
             }
         }
 
+        /**
+         * If no identificators have been provided (productId or upc) we took the material from honeywell in both. Is this valid?
+         */
         fun readG83(jsonItem: JSONObject, sequenceNumber: Int? = 1, ucsType: String): G83? {
+            val id = extract<String>(jsonItem, HKey._06, null)
+            val upc =  extract<String>(jsonItem, HKey._04, null)
+            val materialNumber = extract<String>(jsonItem, HKey.MATNO)
             return G83(sequenceNumber,
                 extract(jsonItem, HKey._02,-1.0),
                 extract(jsonItem, HKey._03),
-                extract(jsonItem, HKey._04),
+                upc ?: materialNumber,
                 extract(jsonItem, HKey._05),
-                extract(jsonItem, HKey._06),
+                id ?: materialNumber,
                 extract(jsonItem, HKey._07),
                 extract(jsonItem, HKey._08, if (ucsType == BASE_RECORD) 0.0 else -1.0),
                 extract(jsonItem, HKey._09, 0),
@@ -131,11 +142,11 @@ class HoneywellParser {
                 extract(jsonAdjustment, HKey._03),
                 extract(jsonAdjustment, HKey._04),
                 extract<Double?>(jsonAdjustment, HKey._05, null),
-                extract(jsonAdjustment, HKey._06,0.0),
+                extract<Double?>(jsonAdjustment, HKey._06,null),
                 extract(jsonAdjustment, HKey._07),
                 extract<Double?>(jsonAdjustment, HKey._08, null),
                 extract<Double?>(jsonAdjustment, HKey._09, null),
-                extract(jsonAdjustment, HKey._10,0.0),
+                extract<Double?>(jsonAdjustment, HKey._10,null),
                 extract(jsonAdjustment, HKey._11)
             )
         }
@@ -190,15 +201,101 @@ class HoneywellParser {
         }
 
         fun readG87(rootJsonObject: JSONObject): G87? {
-            TODO("Parse")
+            return G87(
+                extract(rootJsonObject, HKey._01),
+                extract(rootJsonObject, HKey._02),
+                extract(rootJsonObject, HKey._03),
+                extract(rootJsonObject, HKey._04),
+                extract(rootJsonObject, HKey._05),
+                extract(rootJsonObject, HKey._06)
+            )
         }
 
         fun readG88(rootJsonObject: JSONObject): ExtraInformation? {
-            TODO("Parse")
+            return G88(
+                extract(rootJsonObject, HKey._01),
+                extract(rootJsonObject, HKey._02),
+                extract(rootJsonObject, HKey._03),
+                extract(rootJsonObject, HKey._04),
+                extract(rootJsonObject, HKey._05)
+            )
         }
 
-        fun readG89(jsonItem: JSONObject, index: Int?, ucsType: String): G89? {
-            TODO("Parse")
+        fun readG89(rootJsonObject: JSONObject, index: Int?, ucsType: String): G89? {
+            return G89(
+                extract(rootJsonObject, HKey._01),
+                extract(rootJsonObject, HKey._02),
+                extract(rootJsonObject, HKey._03),
+                extract(rootJsonObject, HKey._04),
+                extract(rootJsonObject, HKey._05),
+                extract(rootJsonObject, HKey._06),
+                extract(rootJsonObject, HKey._07),
+                extract(rootJsonObject, HKey._08),
+                extract(rootJsonObject, HKey._09),
+                extract(rootJsonObject, HKey._10),
+                extract(rootJsonObject, HKey._11),
+                extract(rootJsonObject, HKey._12)
+            )
+        }
+
+
+        fun readInitialization(rootJsonObject: JSONObject): Initialization? {
+            val initialization = getIgnoreCase(rootJsonObject, HKey.INITIALIZATION)
+            if (!initialization.isNullOrEmpty()) {
+                val initializationJSONObject = rootJsonObject.getJSONObject(initialization)
+                return Initialization(
+                    extract(initializationJSONObject, HKey.COM_METHOD, "BTLE")!!,
+                    extract(initializationJSONObject, HKey.EVENT_SOURCE_ID, DexConnectionService.EVENT_SEND)!!,
+                    extract(initializationJSONObject, HKey.INI_FILE, "//mnt/sdcard//Android//data//DSD12//config.ini")!!,
+                    extract(initializationJSONObject, HKey.INSTANCE_NAME, "DEX")!!,
+                    extract(initializationJSONObject, HKey.SYNCH_TYPE, 2)!!
+                )
+            }
+            return null
+        }
+
+        fun readConfiguration(rootJsonObject: JSONObject): Configuration? {
+            val config = getIgnoreCase(rootJsonObject, HKey.CONFIG)
+            if (config != null && rootJsonObject.has(config)) {
+                val configJsonObject = rootJsonObject.getJSONObject(config)
+                val supplier = getIgnoreCase(configJsonObject, HKey.SUPPLIER)
+                val retailer = getIgnoreCase(configJsonObject, HKey.RETAILER)
+                var retailerBlock: Retailer? = null
+                var supplierBlock: Supplier? = null
+                if (!retailer.isNullOrEmpty()) {
+                    val retailerJsonObject = configJsonObject.getJSONObject(retailer)
+                    retailerBlock = Retailer(
+                        extract(
+                            retailerJsonObject,
+                            HKey.RETAILER_COMMUNICATIONS_ID),
+                        extract(
+                            retailerJsonObject,
+                            HKey.RETAILER_DUNS_NUMBER)!!,
+                        extract(
+                            retailerJsonObject,
+                            HKey.RETAILER_LOCATION),
+                        extract(
+                            retailerJsonObject,
+                            HKey.RETAILER_DEX_VERSION)
+                    )
+                }
+                if (!supplier.isNullOrEmpty()) {
+                    val supplierJsonObject = configJsonObject.getJSONObject(supplier)
+                    supplierBlock = Supplier(
+                        extract(supplierJsonObject, HKey.SUPPLIER_COMMUNICATIONS_ID),
+                        extract(supplierJsonObject, HKey.SUPPLIER_DUNS_NUMBER),
+                        extract(supplierJsonObject, HKey.SUPPLIER_LOCATION),
+                        extract(supplierJsonObject, HKey.SUPPLIER_SIGNATURE_KEY)
+                    )
+                }
+                return Configuration(
+                    retailerBlock, supplierBlock,
+                    extract(configJsonObject, HKey.TRANSACTION_CONTROL_NUMBER, 1)!!,
+                    extract(configJsonObject, HKey.TRANSMISSION_CONTROL_NUMBER, 1)!!,
+                    extract(configJsonObject, HKey.TEST_INDICATOR) //test indicator should be on DXS block, Singleton/parameter and then capture from there?
+                )
+            }
+            return null
         }
     }
 }

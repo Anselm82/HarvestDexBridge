@@ -5,8 +5,8 @@ import com.honeywell.usbakerydex.versatiledex.utils.isAlphanumeric
 import com.honeywell.usbakerydex.versatiledex.utils.isNumeric
 
 data class Vendor(
-    private var route: String?, private var name: String?, private val duns: String,
-    private val location: String, private val commId: String, private val dexVersion: String
+    private var route: String?, private var name: String?, val duns: String,
+    private val location: String, private val commId: String, val dexVersion: String
 ) {
 
     companion object {

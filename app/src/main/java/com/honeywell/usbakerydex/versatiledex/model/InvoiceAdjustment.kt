@@ -25,7 +25,7 @@ data class InvoiceAdjustment(
 
     override fun toString(): String {
         if (validAdjustment())
-            return "$INVOICE_ADJUSTMENT $adjustmentType $adjustmentCode $handlingCode $vendorCode $flag $adjustment$NEW_LINE"
+            return "$INVOICE_ADJUSTMENT ${adjustmentType.value} $adjustmentCode ${handlingCode.value} $vendorCode ${flag.value} $adjustment$NEW_LINE"
         else
             throw MandatoryFieldException(SECTION)
     }

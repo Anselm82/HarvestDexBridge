@@ -14,62 +14,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HKey {
-    companion object {
-        const val ADJUSTMENTS = "adjustments"
-        const val MTX = "mtx"
-        const val N9 = "n9"
-        const val SUPPLIER_LOCATION = "location"
-        const val SUPPLIER_SIGNATURE_KEY = "signaturekey"
-        const val SUPPLIER_COMMUNICATIONS_ID = "communicationsid"
-        const val SUPPLIER_DUNS_NUMBER = "dunsnumber"
-        const val RETAILER_LOCATION = "location"
-        const val RETAILER_DEX_VERSION = "dexversion"
-        const val RETAILER_COMMUNICATIONS_ID = "communicationsid"
-        const val RETAILER_DUNS_NUMBER = "dunsnumber"
-        const val CONFIG = "config"
-        const val SUPPLIER = "supplier"
-        const val RETAILER = "retailer"
-        const val TRANSACTION = "transaction"
-        const val INVOICES = "invoices"
-        const val INITIALIZATION = "initialization"
-        const val EVENT_SOURCE_ID = "evtSrcId"
-        const val SYNCH_TYPE = "synchtype"
-        const val COM_METHOD = "commethod"
-        const val INI_FILE = "inifile"
-        const val INSTANCE_NAME = "instancename"
-        const val TRANSMISSION_CONTROL_NUMBER = "transmissioncontrolnumber"
-        const val TRANSACTION_CONTROL_NUMBER = "transactionsetcontrolnumber"
-        const val TEST_INDICATOR = "testindicator"
-        const val ITEMS = "items"
-        const val MATNO = "matno"
-        const val TYPE = "type"
-        const val ST = "st"
-        const val G82 = "g82"
-        const val G83 = "g83"
-        const val G84 = "g84"
-        const val G85 = "g85"
-        const val G86 = "g86"
-        const val G87 = "g87"
-        const val G88 = "g88"
-        const val G89 = "g89"
-        const val DXS = "dxs"
-        const val DXE = "dxe"
-        const val _01 = "01"
-        const val _02 = "02"
-        const val _03 = "03"
-        const val _04 = "04"
-        const val _05 = "05"
-        const val _06 = "06"
-        const val _07 = "07"
-        const val _08 = "08"
-        const val _09 = "09"
-        const val _10 = "10"
-        const val _11 = "11"
-        const val _12 = "12"
-    }
-}
-
+/*
 class HoneywellParser {
 
 
@@ -743,7 +688,7 @@ class HoneywellParser {
             return null
         }
     }
-}
+}*/
 
 private fun String.convertToHoneywellReferenceNumberQualifier() =
     HoneywellReferenceNumberQualifier.valueOf(this)

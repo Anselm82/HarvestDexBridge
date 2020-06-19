@@ -1,5 +1,6 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
+import com.honeywell.usbakerydex.dex.model.toYYMMDD_hhmmss
 import com.honeywell.usbakerydex.versatiledex.utils.*
 import java.text.SimpleDateFormat
 
@@ -15,7 +16,7 @@ data class VersatileDexResponseEntry(
     override fun toString(): String {
         val params = toVersatileString(params)
         val formatter = SimpleDateFormat("YYMMDD:hhmmss")
-        val timestamp = formatter.format(timestamp)
+        val timestamp = timestamp.toYYMMDD_hhmmss()
         return "$timestamp $ucsType:$code $invoice $adjustmentType $params".replace(
             "\\s+".toRegex(),
             " "
@@ -77,5 +78,7 @@ data class VersatileDexResponseEntry(
                 "${getValueOrDefault(VersatileResponseParams.INVOICE_STATUS, map, "")}$EMPTY_SPACE"
     }
 }
+
+
 
 

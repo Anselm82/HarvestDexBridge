@@ -40,6 +40,9 @@ data class Customer(
         const val PHONE2 = "${PREFIX}PHONE2"
         const val CONTACT = "${PREFIX}CONTACT"
         const val NOTES = "${PREFIX}NOTES"
+
+        var failingField : String = ""
+        var failingValue : String = ""
     }
 
     private fun validDuns() = duns.validLength(9) && duns.isNumeric()
@@ -75,7 +78,17 @@ data class Customer(
     private fun validNotes() =
         !notes.isNullOrBlank() && notes!!.validLength(50) && notes!!.isAlphanumeric()
 
-    private fun isMandatoryDataSetAndValid() = validDuns() && validLocation()
+    private fun isMandatoryDataSetAndValid() : Boolean {
+        if(!validDuns()) {
+            failingField = DUNS
+            failingValue = duns
+        }
+        if(!validLocation()) {
+            failingField = LOCATION
+            failingValue = location
+        }
+        return validDuns() && validLocation()
+    }
 
     override fun toString(): String {
         if (isMandatoryDataSetAndValid()) {
@@ -106,7 +119,7 @@ data class Customer(
                 customer += "$NOTES \"$notes\"$NEW_LINE"
             return customer
         } else {
-            throw MandatoryFieldException(SECTION)
+            throw MandatoryFieldException("$SECTION: $failingField = $failingValue")
         }
     }
 }

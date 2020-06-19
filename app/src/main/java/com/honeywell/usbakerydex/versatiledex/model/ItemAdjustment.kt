@@ -17,7 +17,13 @@ open class ItemAdjustment(
     }
 
     fun validAdjustment(): Boolean {
-        return validAdjustmentType() && validAdjustmentCode() && validHandlingCode() && validVendorCode() && validFlag() && validAdjustmentFlagValue()
+        val type = validAdjustmentType()
+        val code = validAdjustmentCode()
+        val handling = validHandlingCode()
+        val vendor = validVendorCode()
+        val flag = validFlag()
+        val adjFlag = validAdjustmentFlagValue()
+        return type && code && handling && vendor && flag && adjFlag
     }
 
     private fun validAdjustmentFlagValue(): Boolean {

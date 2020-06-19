@@ -1,4 +1,4 @@
-package com.honeywell.usbakerydex.dex.model
+package com.honeywell.usbakerydex.honeywelldex
 
 import com.honeywell.usbakerydex.dex.model.blocks.*
 import org.json.JSONObject

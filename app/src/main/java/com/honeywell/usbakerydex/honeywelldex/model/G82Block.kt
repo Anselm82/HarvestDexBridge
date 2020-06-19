@@ -9,10 +9,10 @@ data class G82Block(
     val receiverLocationNumber: String? = null, //04
     val supplierDunsNumber: String? = null, //05
     val supplierLocationNumber: String? = null, //06
-    val deliveryReturnDate: Long? = null, //07 YYYYMMDD
-    val ownershipTransferDate: Long? = null, //08 YYYYMMDD
+    val deliveryReturnDate: String? = null, //07 YYYYMMDD
+    val ownershipTransferDate: String? = null, //08 YYYYMMDD
     val purchaseOrderNumber: String? = null, //09
-    val purchaseOrderDate: Long? = null, //10 YYYYMMDD
+    val purchaseOrderDate: String? = null, //10 YYYYMMDD
     val shipmentMethodOfPayment: String? = null, //11
     val codMethodOfPayment: String? = null //12
 )

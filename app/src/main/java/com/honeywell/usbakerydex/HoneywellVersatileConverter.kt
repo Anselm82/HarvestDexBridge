@@ -11,7 +11,7 @@ import com.honeywell.usbakerydex.versatiledex.utils.*
 import java.lang.Exception
 import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
 
-/*class HoneywellVersatileConverter {
+class HoneywellVersatileConverter {
 
     companion object {
 
@@ -52,7 +52,7 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
                     if (orderType == VersatileOrderType.DELIVERY) invoice?.g82?.receiverDunsNumber
                         ?: "" else invoice?.g82?.supplierDunsNumber ?: ""
                 val date =
-                    if (!orderNumber.isBlank()) invoice?.g82?.deliveryReturnDate ?: 0L else 0L
+                    if (!orderNumber.isBlank()) invoice?.g82?.deliveryReturnDate ?: "0" else "0"
                 val versatileInvoice = Invoice(
                     invoiceNumber,
                     orderType,
@@ -125,7 +125,7 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
             versatileFlag: VersatileAdjustmentFlag
         ) = when (versatileFlag) {
             VersatileAdjustmentFlag.PERCENTAGE -> "${g72.allowanceOrChargePercent}/${g72.dollarBasisForPercent}"
-            VersatileAdjustmentFlag.TOTAL -> g72.allowanceOrChargeTotalAmount
+            VersatileAdjustmentFlag.TOTAL -> "${g72.allowanceOrChargeTotalAmount}"
             VersatileAdjustmentFlag.RATE_PER_QUANTITY -> "${g72.allowanceOrChargeRate}/${g72.allowanceOrChargeQty}"
         }
 
@@ -205,7 +205,7 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
             return Customer(
                 honeywellDexRequest.config?.supplier?.signatureKey ?: 123L,
                 honeywellDexRequest.config?.supplier?.dunsNumber ?: "",
-                honeywellDexRequest.config?.supplier?.location ?: "",
+                honeywellDexRequest.config?.supplier?.location ?: "0001",
                 honeywellDexRequest.config?.supplier?.communicationsId ?: "1111111111"
             )
         }
@@ -417,8 +417,8 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
                 if(itemAdjustments.firstOrNull { it.ucsType == 895 } != null)
                     g72List.add(removeItemAdjustment())
                 for (itemAdjustment in itemAdjustments) {
-                    val g72Block = getG72Block(itemAdjustment, originalItem)
-                    g72List.add(g72Block)
+                    val g72Block = null//getG72Block(itemAdjustment, originalItem)
+                    //g72List.add(g72Block)
                 }
                 g72List
             }
@@ -433,7 +433,7 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
             BUYBACK("05"),
             RETURNS("06")
         }
-
+/*
         private fun getG72Block(
             itemAdjustment: VersatileDexResponseEntry,
             originalItem: ItemBlock
@@ -456,7 +456,7 @@ import com.honeywell.usbakerydex.honeywelldex.model.Invoice as HONInvoice
 
 
             )
-        }
+        }*/
 
         private fun removeItemAdjustment(): G72Block {
             return G72Block(
@@ -535,4 +535,3 @@ private fun HoneywellTypeFlag.convertToVersatileOrderType() = when (this) {
 }
 
 private fun Double?.isNotNullAndPositive() = if (this != null) this >= 0 else false
- */

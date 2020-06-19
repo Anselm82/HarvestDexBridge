@@ -34,9 +34,9 @@ class VersatileConverter {
             val timestamp = formatter.parse(params[0])!!.time
             val ucsTypeCode = params[1].split(":")
             val ucsType = ucsTypeCode[0].toInt()
-            val code = VersatileResponseCode.valueOf(ucsTypeCode[1])
+            val code = VersatileResponseCode.fromValue(ucsTypeCode[1])
             val invoice = params[2].toInt()
-            val adjustmentType = VersatileResponseAdjustmentType.valueOf(params[3])
+            val adjustmentType = VersatileResponseAdjustmentType.fromValue(params[3])
             val adjustmentTypeParams = params.subList(4, params.size)
             val entryParams =
                 toVersatileResponseParamsMap(

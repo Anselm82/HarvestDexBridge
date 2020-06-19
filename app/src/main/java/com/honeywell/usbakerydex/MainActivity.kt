@@ -1,13 +1,12 @@
 package com.honeywell.usbakerydex
 
 import android.app.Activity
-import android.app.IntentService
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.gson.Gson
 import com.honeywell.usbakerydex.dex.model.DEXTransaction
-import com.honeywell.usbakerydex.honeywelldex.HoneywellParser
+import com.honeywell.usbakerydex.dex.model.DEXTransmission.Builder
+import com.honeywell.usbakerydex.dex.model.HoneywellParser
+import com.honeywell.usbakerydex.versatiledex.VersatileConverter
+import com.honeywell.usbakerydex.versatiledex.model.VersatileDexResponse
 import org.json.JSONObject
 
 class MainActivity : Activity() {
@@ -17,7 +16,8 @@ class MainActivity : Activity() {
         //moveTaskToBack(true)
         finish()
 
-        val jsonString = "{\n" +
+        val jsonString895 = "{\"ReceiveDexData\":{\"DXS\":{\"RetailerCommunicationID\":\"1111111111\",\"FunctionalIdentifierCode\":\"DX\",\"VersionOrReleaseOrIndustryIdentifierCode\":\"004010UCS\",\"TransmissionControlNumber\":3,\"SupplierCommunicationID\":\"1111111111\",\"TestIndicator\":\"P\"},\"InvoiceList\":[{\"Invoice Status\":{\"InvoiceNumber\":\"80010000080037000002\",\"Status\":\"Adjusted\"},\"ST\":{\"TransactionSetID\":\"895\",\"TransactionSetControlNumber\":2},\"G87\":{\"InitiatorCode\":\"R\",\"CreditDebitFlag\":\"D\",\"SupplierDeliveryReturnNumber\":\"80010000080037000002\",\"IntegrityCheckValue\":\"B837\",\"AdjustmentNumber\":1},\"G89\":[{\"SequenceNumber\":1,\"Quantity\":30.0},{\"SequenceNumber\":2,\"ItemListCost\":2.22},{\"SequenceNumber\":3,\"G72\":[{\"AllowanceCode\":\"96\",\"MethodOfHandling\":\"12\",\"AllowanceNumber\":\"REMOVE\"},{\"AllowanceCode\":\"97\",\"MethodOfHandling\":\"02\",\"AllowanceRate\":\"-.02\",\"AllowanceQuantity\":\"25\",\"UOMCode\":\"EA\"}]}],\"G84\":{\"TotalQuantity\":77.0,\"TotalInvoiceAmount\":293.78},\"G86\":{\"Signature\":\"5230\"},\"G85\":{\"IntegrityCheckValue\":\"E11C\"},\"SE\":{\"SegmentCount\":13,\"TransactionSetControlNumber\":2}}],\"DXE\":{\"TransmissionControlNumber\":3,\"NumberOfTransactionSetsIncluded\":1}}}"
+        val jsonString894 = "{\n" +
                 "\t\"CONFIG\": \n" +
                 "\t{\n" +
                 "\t\t\"RETAILER\":\n" +
@@ -133,11 +133,22 @@ class MainActivity : Activity() {
                 "\t\t}\n" +
                 "\t}\n" +
                 "}"
-        val json = JSONObject(jsonString)
+        val json = JSONObject(jsonString894)
 
-        //need to parse the config and initialization to fill the request
-        val dex = DEXTransaction.fromJSON(json)
+        val dexTransmission = Builder()
+            .with(HoneywellParser.readConfiguration(json)!!)
+            .with(HoneywellParser.readInitialization(json)!!)
+            .with(DEXTransaction.readTransaction(json)!!).build()
+
+        val versatile = dexTransmission.toVersatile()
+        val versatileDexResponseString = "140701:015830 894:USR 1007 ADJ_QTY 2 1 2\n" +
+                "140701:015831 894:USR 1007 ADJ_QTY 4 1 4\n" +
+                "140701:015832 895:SVR 1007 ADJ_LOCATION 102 100\n" +
+                "140701:015832 895:USR 1007 INVC_STATUS 3"
+        val result = VersatileConverter.toVersatileDexResponse(versatileDexResponseString, 5010)
+        result.lines.forEach { item -> print(item.toString()) }
+        dexTransmission.merge(result)
         //then, parse to versatile doing: dex.toVersatile()
-        print(dex)
+        print(versatile)
     }
 }

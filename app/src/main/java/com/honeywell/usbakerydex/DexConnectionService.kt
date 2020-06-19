@@ -8,8 +8,8 @@ import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import com.honeywell.usbakerydex.honeywelldex.HoneywellParser
-import com.honeywell.usbakerydex.honeywelldex.model.HoneywellDexRequest
+import com.honeywell.usbakerydex.dex.model.DEXTransmission
+
 import com.honeywell.usbakerydex.versatiledex.model.VersatileDexMode
 import org.json.JSONObject
 import java.util.*
@@ -50,7 +50,7 @@ class DexConnectionService : Service() {
 
     var callMe: CallMe? = null
 
-    lateinit var honeywellDexRequest: HoneywellDexRequest
+    lateinit var honeywellDexRequest: DEXTransmission
 
     var eventSourceId: Int = 0
 
@@ -112,9 +112,9 @@ class DexConnectionService : Service() {
         val obtain = Message.obtain()
         val bundle = Bundle()
         bundle.putString("JSON", responseJSONObject.toString())
-        obtain.what = honeywellDexRequest.initialization!!.eventSourceId!!
+        obtain.what = honeywellDexRequest.initialization.eventSourceId
         obtain.arg1 = System.currentTimeMillis().toInt()
-        obtain.arg2 = honeywellDexRequest.initialization!!.syncHType!!
+        obtain.arg2 = honeywellDexRequest.initialization.syncHType
         obtain.replyTo = Messenger(IncomingHandler())
         obtain.data = bundle
         try {
@@ -240,10 +240,10 @@ class DexConnectionService : Service() {
         if (intent.hasExtra("JSON")) {
             jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
             Log.d("DEX", jsonObject.toString())
-            honeywellDexRequest = HoneywellParser.fromJSON(jsonObject)
+            //honeywellDexRequest = HoneywellParser.fromJSON(jsonObject)
             newIntent.setPackage(stringExtra)
-            eventSourceId = honeywellDexRequest.initialization!!.eventSourceId!!
-            Log.d("DEX", honeywellDexRequest.transaction!!.toString())
+            eventSourceId = honeywellDexRequest.initialization.eventSourceId
+            Log.d("DEX", honeywellDexRequest.transaction.toString())
             newIntent.putExtra("evtSrcId", eventSourceId)
             bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
         }
