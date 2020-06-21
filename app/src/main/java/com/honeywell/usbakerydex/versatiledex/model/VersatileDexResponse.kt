@@ -1,5 +1,9 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
+import com.honeywell.usbakerydex.dex.model.ACK_ADJ_RECORD
+import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseAdjustmentType
+import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseParams
+
 data class VersatileDexResponse(val lines: Array<VersatileDexResponseEntry>) {
 
     override fun equals(other: Any?): Boolean {
@@ -18,5 +22,25 @@ data class VersatileDexResponse(val lines: Array<VersatileDexResponseEntry>) {
         return lines.joinToString { line -> line.toString() }
     }
 
+    fun invoices() : Map<String, List<VersatileDexResponseEntry>> {
+        return lines.groupBy { it.invoice }
+    }
+
+    fun invoice(invoiceNumber: String) : List<VersatileDexResponseEntry>? {
+        return invoices()[invoiceNumber]
+    }
+
+    fun invoiceResponse(invoiceNumber: String) : List<VersatileDexResponseEntry>?  {
+        return invoice(invoiceNumber)?.filter { "${it.ucsType}" == ACK_ADJ_RECORD }
+    }
+
+    fun status(invoiceNumber: String) : String? {
+        return invoice(invoiceNumber)?.filter { it.adjustmentType == VersatileResponseAdjustmentType.INVC_STATUS }
+            ?.get(0)?.params?.get(VersatileResponseParams.INVOICE_STATUS) as String?
+    }
+
+    fun itemAdjustments(invoiceNumber: String) : List<VersatileDexResponseEntry>? {
+        return invoice(invoiceNumber)?.filter { it.adjustmentType in VersatileResponseAdjustmentType.itemAdjustmentTypes() }
+    }
 }
 

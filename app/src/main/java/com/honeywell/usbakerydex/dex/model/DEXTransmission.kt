@@ -265,9 +265,14 @@ class DEXTransmission private constructor(
         transaction.recordList.forEach {
             val identifier = it.identifier
             if(identifier is G82) {
-                val invoices = response.lines.groupBy { it.invoice }[identifier.supplierDeliveryReturnNumber]
-
-                /**val g87 = G87(
+                val invoiceData = response.lines.groupBy { it.invoice }[identifier.supplierDeliveryReturnNumber]
+                if(!invoiceData.isNullOrEmpty()){
+                    val initiator = when(it.code) {
+                        VersatileResponseCode.SVR -> InitiatorCode.RETAILER
+                        VersatileResponseCode.USR -> InitiatorCode.SUPPLIER
+                    }
+                }
+                val g87 = G87(
                     identifier.creditDebitFlagCode,
                     identifier
                 )
@@ -278,7 +283,7 @@ class DEXTransmission private constructor(
                 val g88 = G88(
 
                 )
-                */
+
             }
         }
         val invoices = response.lines.groupBy { it.invoice }

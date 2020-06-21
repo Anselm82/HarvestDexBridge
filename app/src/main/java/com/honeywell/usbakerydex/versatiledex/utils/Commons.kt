@@ -127,6 +127,16 @@ enum class VersatileResponseAdjustmentType(val value: String) {
 
     companion object {
         fun fromValue(value: String) = values().first { it.value == value }
+
+        fun invoiceAdjustmentTypes() = arrayOf(
+            INVC_STATUS, INVC_STATUS_MANUALLY_CHANGED, ADJ_INVC_ALLOWANCE, ADJ_INVC_CHARGE, ADJ_INVC_KILL_PREVIOUS_ALLOW_CHG)
+
+        fun serverAdjustmentTypes() = arrayOf(ADJ_D_R_DATE, ADJ_PODATE, ADJ_PONUM, ADJ_POTD, ADJ_LOCATION)
+
+        fun itemAdjustmentTypes() = arrayOf(
+            ADJ_PACKTYPE, ADJ_PRICE, ADJ_QTY, ADJ_UPC, ADJ_CASEUPC, ADJ_PACK, ADJ_INNERPACK, ADJ_PROD_QUALIFIER,
+            ADJ_PROD_ID, ADJ_ALLOWANCE, ADJ_ALLOWANCE_REJECTED, ADJ_CHARGE, ADJ_CHARGE_REJECTED, ADJ_KILL_PREVIOUS_ALLOW_CHG,
+            ADJ_NEW_ITEM, ADJ_NEW_ITEM_REJECTED, ADJ_DEL_ITEM)
     }
 
 }
