@@ -138,17 +138,19 @@ class MainActivity : Activity() {
         val dexTransmission = Builder()
             .with(HoneywellParser.readConfiguration(json)!!)
             .with(HoneywellParser.readInitialization(json)!!)
-            .with(DEXTransaction.readTransaction(json)!!).build()
+            .with(HoneywellParser.readTransaction(json)!!).build()
 
         val versatile = dexTransmission.toVersatile()
+        print(versatile)
         val versatileDexResponseString = "140701:015830 894:USR 1007 ADJ_QTY 2 1 2\n" +
                 "140701:015831 894:USR 1007 ADJ_QTY 4 1 4\n" +
                 "140701:015832 895:SVR 1007 ADJ_LOCATION 102 100\n" +
                 "140701:015832 895:USR 1007 INVC_STATUS 3"
         val result = VersatileConverter.toVersatileDexResponse(versatileDexResponseString, 5010)
         result.lines.forEach { item -> print(item.toString()) }
-        dexTransmission.merge(result)
+        val dexTransmissionResponse = dexTransmission.buildResponse(result)
+        val response = dexTransmissionResponse.toHoneywell()
+        print(response)
         //then, parse to versatile doing: dex.toVersatile()
-        print(versatile)
     }
 }

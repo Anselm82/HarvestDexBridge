@@ -3,9 +3,6 @@ package com.honeywell.usbakerydex.dex.model.blocks
 import com.honeywell.usbakerydex.dex.model.DEFAULT_DEX_VERSION
 import com.honeywell.usbakerydex.dex.model.FUNCTIONAL_GROUP
 import com.honeywell.usbakerydex.dex.model.vo.TestIndicator
-import com.honeywell.usbakerydex.honeywelldex.model.HoneywellDexRequest
-import com.honeywell.usbakerydex.versatiledex.model.Vendor
-import java.lang.Exception
 
 data class DXS(
     var senderIdentificationCode: String? = null, //01, M-[2-80] sender identification number GS1 US or UCS Comm id

@@ -4,7 +4,7 @@ import com.honeywell.usbakerydex.dex.model.ACK_ADJ_RECORD
 import com.honeywell.usbakerydex.dex.model.BASE_RECORD
 import com.honeywell.usbakerydex.dex.model.HoneywellParser
 import com.honeywell.usbakerydex.dex.model.getIgnoreCase
-import com.honeywell.usbakerydex.honeywelldex.HKey
+import com.honeywell.usbakerydex.honeywell.vo.HKey
 import org.json.JSONObject
 
 data class InnerRecord(

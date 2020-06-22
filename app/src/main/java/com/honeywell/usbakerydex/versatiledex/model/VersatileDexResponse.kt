@@ -1,7 +1,9 @@
 package com.honeywell.usbakerydex.versatiledex.model
 
 import com.honeywell.usbakerydex.dex.model.ACK_ADJ_RECORD
+import com.honeywell.usbakerydex.dex.model.vo.InitiatorCode
 import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseAdjustmentType
+import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseCode
 import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseParams
 
 data class VersatileDexResponse(val lines: Array<VersatileDexResponseEntry>) {
@@ -32,6 +34,11 @@ data class VersatileDexResponse(val lines: Array<VersatileDexResponseEntry>) {
 
     fun invoiceResponse(invoiceNumber: String) : List<VersatileDexResponseEntry>?  {
         return invoice(invoiceNumber)?.filter { "${it.ucsType}" == ACK_ADJ_RECORD }
+    }
+
+    fun initiator(invoiceNumber: String) : VersatileResponseCode {
+        val invoiceStatus = invoice(invoiceNumber)?.filter { it.adjustmentType == VersatileResponseAdjustmentType.INVC_STATUS }?.get(0)
+        return if("${invoiceStatus!!.ucsType}" == ACK_ADJ_RECORD) VersatileResponseCode.SVR else VersatileResponseCode.USR
     }
 
     fun status(invoiceNumber: String) : String? {

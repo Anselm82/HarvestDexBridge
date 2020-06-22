@@ -1,7 +1,6 @@
 package com.honeywell.usbakerydex.dex.model
 
 import com.honeywell.usbakerydex.dex.model.blocks.*
-import com.honeywell.usbakerydex.dex.model.vo.InitiatorCode
 import com.honeywell.usbakerydex.dex.model.vo.TestIndicator
 import com.honeywell.usbakerydex.honeywell.model.Configuration
 import com.honeywell.usbakerydex.honeywell.model.Initialization
@@ -9,7 +8,6 @@ import com.honeywell.usbakerydex.honeywelldex.model.FunctionalIdentifier
 import com.honeywell.usbakerydex.versatiledex.model.*
 import com.honeywell.usbakerydex.versatiledex.utils.NEW_LINE
 import com.honeywell.usbakerydex.versatiledex.utils.VersatilePackType
-import com.honeywell.usbakerydex.versatiledex.utils.VersatileResponseCode
 import org.json.JSONObject
 import java.util.*
 
@@ -260,6 +258,39 @@ class DEXTransmission private constructor(
         return vendors
     }
 
+    fun buildResponse(response: VersatileDexResponse) : DEXTransmission {
+        val transactionResponse = DEXTransaction(
+            this.transaction.dxs,
+            this.transaction.recordList,
+            this.transaction.dxe
+        )
+        transactionResponse.recordList.forEach {
+            it.identifier = g82Tog87(it.identifier, response)
+            it.extraInformation = g88(it)
+            it.
+        }
+        val dexTransmission = DEXTransmission(this.configuration, this.initialization, transactionResponse)
+        return dexTransmission
+    }
+
+    private fun g88(it: InnerRecord): ExtraInformation? {
+
+    }
+
+    private fun g82Tog87(
+        identifier: RecordIdentifier?,
+        response: VersatileDexResponse
+    ) : RecordIdentifier? {
+        if(identifier is G82) {
+            val invoiceNumber = identifier.supplierDeliveryReturnNumber!!
+            val invoice = response.invoice(invoiceNumber)
+            val initiator = response.initiator(invoiceNumber)
+            val g87 = G87(
+
+            )
+        } else return identifier
+    }
+/*
     fun merge(response: VersatileDexResponse) {
         val g87s = mutableListOf<G87>()
         transaction.recordList.forEach {
@@ -307,5 +338,8 @@ class DEXTransmission private constructor(
             )
         }
     }
+
+
+ */
 }
 

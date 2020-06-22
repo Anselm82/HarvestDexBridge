@@ -8,7 +8,9 @@ import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.honeywell.usbakerydex.dex.model.DEXTransaction
 import com.honeywell.usbakerydex.dex.model.DEXTransmission
+import com.honeywell.usbakerydex.dex.model.HoneywellParser
 
 import com.honeywell.usbakerydex.versatiledex.model.VersatileDexMode
 import org.json.JSONObject
@@ -89,8 +91,7 @@ class DexConnectionService : Service() {
     }
 
     private fun getRouteData(): String {
-        val content = //HoneywellVersatileConverter.toVersatileDexRequest(honeywellDexRequest)
-            "".toString()
+        val content = honeywellDexRequest.toVersatile()
         Log.i("DEX", content)
         return content
     }
@@ -240,7 +241,10 @@ class DexConnectionService : Service() {
         if (intent.hasExtra("JSON")) {
             jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
             Log.d("DEX", jsonObject.toString())
-            //honeywellDexRequest = HoneywellParser.fromJSON(jsonObject)
+            honeywellDexRequest = DEXTransmission.Builder()
+                .with(HoneywellParser.readConfiguration(jsonObject)!!)
+                .with(HoneywellParser.readInitialization(jsonObject)!!)
+                .with(HoneywellParser.readTransaction(jsonObject)!!).build()
             newIntent.setPackage(stringExtra)
             eventSourceId = honeywellDexRequest.initialization.eventSourceId
             Log.d("DEX", honeywellDexRequest.transaction.toString())

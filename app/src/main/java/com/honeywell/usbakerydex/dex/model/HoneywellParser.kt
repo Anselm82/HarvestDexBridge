@@ -238,7 +238,6 @@ class HoneywellParser {
             )
         }
 
-
         fun readInitialization(rootJsonObject: JSONObject): Initialization? {
             val initialization = getIgnoreCase(rootJsonObject, HKey.INITIALIZATION)
             if (!initialization.isNullOrEmpty()) {
@@ -296,6 +295,10 @@ class HoneywellParser {
                 )
             }
             return null
+        }
+
+        fun readTransaction(rootJsonObject: JSONObject): DEXTransaction? {
+            return DEXTransaction.readTransaction(rootJsonObject)
         }
     }
 }
