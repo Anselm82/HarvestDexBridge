@@ -230,11 +230,10 @@ class HoneywellParser {
                 HKey._04,
                 null
             )
-            val materialNumber =
-                extract<String>(
-                    jsonItem,
-                    HKey.MATNO
-                )
+            val mat = getIgnoreCase(jsonItem, HKey.MATNO)
+            var materialNumber : String? = null
+            if(!mat.isNullOrEmpty())
+                materialNumber = extract(jsonItem, mat!!)
             return G83(sequenceNumber,
                 extract(
                     jsonItem,

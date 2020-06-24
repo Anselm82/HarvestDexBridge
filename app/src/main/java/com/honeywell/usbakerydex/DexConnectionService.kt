@@ -248,6 +248,7 @@ class DexConnectionService : Service() {
         return START_NOT_STICKY
     }
 
+
     private fun setDexParams(intent: Intent?, i: Int) {
         val stringExtra: String = intent!!.getStringExtra(CALLER_APP_ID)!!
         val newIntent = Intent(EXTERNAL_EVENT_ACTION)
