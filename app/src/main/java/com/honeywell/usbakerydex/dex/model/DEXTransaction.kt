@@ -3,6 +3,7 @@ package com.honeywell.usbakerydex.dex.model
 import com.honeywell.usbakerydex.dex.model.blocks.DXE
 import com.honeywell.usbakerydex.dex.model.blocks.DXS
 import com.honeywell.usbakerydex.dex.model.blocks.InnerRecord
+import com.honeywell.usbakerydex.honeywell.HoneywellParser
 import com.honeywell.usbakerydex.honeywell.vo.HKey
 import org.json.JSONObject
 

@@ -1,13 +1,11 @@
 package com.honeywell.usbakerydex.dex.model
 
 import com.honeywell.usbakerydex.dex.model.blocks.G72
-import com.honeywell.usbakerydex.honeywelldex.model.G72Block
-import com.honeywell.usbakerydex.versatiledex.utils.*
+import com.honeywell.usbakerydex.versatile.utils.*
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.Checksum
-import kotlin.reflect.typeOf
 
 const val CRLF = "\r\n"
 const val FUNCTIONAL_GROUP = "DX"
@@ -46,8 +44,6 @@ internal fun String.toVersatileHandlingCode() = VersatileHandlingCode.fromValue(
 internal fun String.toVersatilePackType() = VersatilePackType.fromValue(this)
 
 internal fun Long.toYYMMDD_hhmmss() = SimpleDateFormat("YYMMDD:hhmmss", Locale.US).format(this)
-
-internal fun String.toTimestamp() = SimpleDateFormat(DATE_FORMAT, Locale.US).parse(this).time
 
 internal fun String.toVersatileOrderType() = VersatileOrderType.fromValue(this)
 

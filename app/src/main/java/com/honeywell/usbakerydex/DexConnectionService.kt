@@ -8,11 +8,13 @@ import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import com.honeywell.usbakerydex.dex.model.DEXTransaction
+import com.honeywell.usbakerydex.dex.model.DEFAULT_DEX_VERSION
 import com.honeywell.usbakerydex.dex.model.DEXTransmission
-import com.honeywell.usbakerydex.dex.model.HoneywellParser
+import com.honeywell.usbakerydex.honeywell.HoneywellParser
+import com.honeywell.usbakerydex.versatile.VersatileConverter
 
-import com.honeywell.usbakerydex.versatiledex.model.VersatileDexMode
+import com.honeywell.usbakerydex.versatile.model.VersatileDexMode
+import com.honeywell.usbakerydex.versatile.utils.cleanUCS
 import org.json.JSONObject
 import java.util.*
 
@@ -35,6 +37,7 @@ class DexConnectionService : Service() {
 
         const val EVENT_SEND = 7363
         const val EVENT_RECEIVE = 7328
+        const val EVENT_FINISHED = 721
         const val EVENT_CLOSE = 2573
         const val SEND_TYPE = "text/dex_route_data"
         const val DEX_APP_PKG_NAME = "com.vms.android.VersatileDEX"
@@ -55,6 +58,8 @@ class DexConnectionService : Service() {
     lateinit var honeywellDexRequest: DEXTransmission
 
     var eventSourceId: Int = 0
+
+    lateinit var result : String
 
     private val mBroadcastReceiver: BroadcastReceiver?
         get() {
@@ -87,6 +92,14 @@ class DexConnectionService : Service() {
         //if it gets down to 3, you should intervene if expecting it to be higher
         if (days_remaining < 4) {
             //license is not active
+        }
+        if(status == 0 || status > 94) {
+            val response = VersatileConverter.toVersatileDexResponse(sResults, honeywellDexRequest.configuration.retailer?.dexVersion?.cleanUCS()?.toInt() ?: DEFAULT_DEX_VERSION.toInt())
+            val result = honeywellDexRequest.buildResponse(response)
+            this.result = result.toHoneywell() ?: "No result"
+            this.eventSourceId = EVENT_RECEIVE
+            callMe?.connectionNotifier?.isConnected = true
+            callMe?.connectionNotifier?.doWork()
         }
     }
 
@@ -304,17 +317,12 @@ class DexConnectionService : Service() {
                     //SEND
                     Log.i("DEX", eventSourceId.toString())
                     if (this@DexConnectionService.eventSourceId == EVENT_SEND) {
-                        if (honeywellDexRequest.transaction != null) {
-                            Log.i("DEX", "Launching Dex.")
-                            launchDEX()
-                        } else Log.i("DEX", "No transaction found.")
+                        Log.i("DEX", "Launching Dex.")
+                        launchDEX()
                         //RECEIVE
                     } else if (this@DexConnectionService.eventSourceId == EVENT_RECEIVE) {
-                        /*val response = HoneywellVersatileConverter.toHoneywellDexResponse(
-                            versatileConnection.handleMessage
-                        )
-                        errorMessage = response.toString()
-                        connectionEvent.connectionEvent()*/
+                        errorMessage = result
+                        connectionEvent.connectionEvent()
                     }
                 } catch (e: Exception) {
                     errorCode = 9001

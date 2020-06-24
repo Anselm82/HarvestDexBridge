@@ -2,11 +2,9 @@ package com.honeywell.usbakerydex
 
 import android.app.Activity
 import android.os.Bundle
-import com.honeywell.usbakerydex.dex.model.DEXTransaction
 import com.honeywell.usbakerydex.dex.model.DEXTransmission.Builder
-import com.honeywell.usbakerydex.dex.model.HoneywellParser
-import com.honeywell.usbakerydex.versatiledex.VersatileConverter
-import com.honeywell.usbakerydex.versatiledex.model.VersatileDexResponse
+import com.honeywell.usbakerydex.honeywell.HoneywellParser
+import com.honeywell.usbakerydex.versatile.VersatileConverter
 import org.json.JSONObject
 
 class MainActivity : Activity() {

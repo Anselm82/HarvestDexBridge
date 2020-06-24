@@ -1,11 +1,8 @@
 package com.honeywell.usbakerydex.dex.model.blocks
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.honeywell.usbakerydex.dex.model.vo.AllowanceOrChargeCode
 import com.honeywell.usbakerydex.dex.model.vo.MethodOfHandling
-import com.honeywell.usbakerydex.dex.model.vo.PrePricedOptionCode
 import com.honeywell.usbakerydex.dex.model.vo.UOM
-import com.honeywell.usbakerydex.honeywelldex.utils.HoneywellHandlingMethodCodes
 
 /**
  *
