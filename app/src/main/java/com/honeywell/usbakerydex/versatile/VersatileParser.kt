@@ -14,13 +14,14 @@ class VersatileConverter {
         fun toVersatileDexResponse(content: String, dexVersion: Int): VersatileDexResponse {
             val lines = content.split(NEW_LINE)
             val entries = mutableListOf<VersatileDexResponseEntry>()
-            for (line in lines)
-                entries.add(
-                    toVersatileDexResponseEntry(
-                        line,
-                        dexVersion
-                    )
+            for (line in lines) {
+                val entry = toVersatileDexResponseEntry(
+                    line,
+                    dexVersion
                 )
+                if(entry != null)
+                     entries.add(entry)
+            }
             return VersatileDexResponse(entries.toTypedArray())
         }
 
@@ -28,30 +29,33 @@ class VersatileConverter {
         private fun toVersatileDexResponseEntry(
             line: String,
             dexVersion: Int
-        ): VersatileDexResponseEntry {
-            val params = line.split(" ")
-            val formatter = SimpleDateFormat("YYMMDD:hhmmss", Locale.US)
-            val timestamp = formatter.parse(params[0])!!.time
-            val ucsTypeCode = params[1].split(":")
-            val ucsType = ucsTypeCode[0].toInt()
-            val code = VersatileResponseCode.fromValue(ucsTypeCode[1])
-            val invoice = params[2].toInt()
-            val adjustmentType = VersatileResponseAdjustmentType.fromValue(params[3])
-            val adjustmentTypeParams = params.subList(4, params.size)
-            val entryParams =
-                toVersatileResponseParamsMap(
+        ): VersatileDexResponseEntry? {
+            if(!line.isNullOrBlank()) {
+                val params = line.split(" ")
+                val formatter = SimpleDateFormat("YYMMDD:hhmmss", Locale.US)
+                val timestamp = formatter.parse(params[0])!!.time
+                val ucsTypeCode = params[1].split(":")
+                val ucsType = ucsTypeCode[0].toInt()
+                val code = VersatileResponseCode.fromValue(ucsTypeCode[1])
+                val invoice = params[2]
+                val adjustmentType = VersatileResponseAdjustmentType.fromValue(params[3])
+                val adjustmentTypeParams = params.subList(4, params.size)
+                val entryParams =
+                    toVersatileResponseParamsMap(
+                        adjustmentType,
+                        adjustmentTypeParams,
+                        dexVersion
+                    )
+                return VersatileDexResponseEntry(
+                    timestamp,
+                    ucsType,
+                    code,
+                    "$invoice",
                     adjustmentType,
-                    adjustmentTypeParams,
-                    dexVersion
+                    entryParams
                 )
-            return VersatileDexResponseEntry(
-                timestamp,
-                ucsType,
-                code,
-                "$invoice",
-                adjustmentType,
-                entryParams
-            )
+            }
+            return null
         }
 
         private fun toVersatileResponseParamsMap(

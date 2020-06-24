@@ -12,7 +12,6 @@ import com.honeywell.usbakerydex.dex.model.DEFAULT_DEX_VERSION
 import com.honeywell.usbakerydex.dex.model.DEXTransmission
 import com.honeywell.usbakerydex.honeywell.HoneywellParser
 import com.honeywell.usbakerydex.versatile.VersatileConverter
-
 import com.honeywell.usbakerydex.versatile.model.VersatileDexMode
 import com.honeywell.usbakerydex.versatile.utils.cleanUCS
 import org.json.JSONObject
@@ -22,16 +21,8 @@ import java.util.*
 class DexConnectionService : Service() {
 
     companion object {
+        var registered = false
         const val CALLER_APP_ID = "callerAppID"
-
-        val CLIENT_CHARACTERISTIC_CONFIG =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
-        val DEX_CHARACTERISTIC_DATA =
-            UUID.fromString("F000C0E1-0451-4000-B000-000000000000")
-
-        val DEX_SERVICE_SPP =
-            UUID.fromString("F000C0E0-0451-4000-B000-000000000000")
 
         const val EXTERNAL_EVENT_ACTION = "com.movilizer.client.android.EXT_EVENT"
 
@@ -94,24 +85,30 @@ class DexConnectionService : Service() {
             //license is not active
         }
         if(status == 0 || status > 94) {
-            val response = VersatileConverter.toVersatileDexResponse(sResults, honeywellDexRequest.configuration.retailer?.dexVersion?.cleanUCS()?.toInt() ?: DEFAULT_DEX_VERSION.toInt())
-            val result = honeywellDexRequest.buildResponse(response)
-            this.result = result.toHoneywell() ?: "No result"
-            this.eventSourceId = EVENT_RECEIVE
-            callMe?.connectionNotifier?.isConnected = true
-            callMe?.connectionNotifier?.doWork()
+            try {
+                val response = VersatileConverter.toVersatileDexResponse(
+                    sResults,
+                    honeywellDexRequest.configuration.retailer?.dexVersion?.cleanUCS()?.toInt()
+                        ?: DEFAULT_DEX_VERSION.toInt()
+                )
+                val result = honeywellDexRequest.buildResponse(response)
+                this.result = result.toHoneywell() ?: "No result"
+                this.eventSourceId = EVENT_RECEIVE
+                callMe?.connectionNotifier?.isConnected = true
+                callMe?.connectionNotifier?.doWork()
+            } catch(e: Exception) {
+                Log.e("ERROR", e.message)
+            } finally {
+                closeDex()
+                this.stopSelf()
+            }
         }
     }
 
-    private fun getRouteData(): String {
-        val content = honeywellDexRequest.toVersatile()
-        Log.i("DEX", content)
-        return content
-    }
+    private fun getRouteData() = honeywellDexRequest.toVersatile()
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
-    }
+
+    override fun onBind(p0: Intent?): IBinder? = null
 
     fun doSendMessage(code: Long, str: String) {
         val responseJSONObject = JSONObject()
@@ -189,8 +186,12 @@ class DexConnectionService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mBroadcastReceiver != null)
+        closeDex()
+        if (mBroadcastReceiver != null && registered) {
             unregisterReceiver(mBroadcastReceiver)
+            registered = false
+            stopSelf()
+        }
     }
 
     private fun build(mode: VersatileDexMode, content: String? = null): Intent {
@@ -218,6 +219,18 @@ class DexConnectionService : Service() {
         startActivity(intent)
     }
 
+    fun closeDex() {
+        val pids = (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses
+        var processid = 0
+        for (i in 0 until pids.size) {
+            val info = pids[i]
+            if (info.processName.equals(DEX_APP_PKG_NAME, ignoreCase = true)) {
+                processid = info.pid
+            }
+        }
+        Process.killProcess(processid)
+    }
+
     fun launchDEX() {
         val data = getRouteData()
         Log.i("Versatile", data)
@@ -235,6 +248,7 @@ class DexConnectionService : Service() {
         this.connection = RemoteServiceConnection()
         this.callMe = CallMe()
         registerReceiver(mBroadcastReceiver, filter)
+        registered = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startNewForegroundNotification()
         else

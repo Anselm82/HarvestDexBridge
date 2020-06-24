@@ -243,7 +243,7 @@ class HoneywellParser {
                 extract(jsonItem, HKey._03),
                 upc ?: materialNumber,
                 extract(jsonItem, HKey._05),
-                id ?: materialNumber,
+                if(id.isNullOrEmpty()) materialNumber else id,
                 extract(jsonItem, HKey._07),
                 extract(
                     jsonItem,
