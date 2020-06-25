@@ -1,6 +1,7 @@
 package com.honeywell.usbakerydex
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import com.honeywell.usbakerydex.dex.model.DEXTransmission.Builder
 import com.honeywell.usbakerydex.honeywell.HoneywellParser
@@ -11,8 +12,11 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        finishAndRemoveTask()
+
         //moveTaskToBack(true)
-        finish()
+
         /*
         val jsonString895 = "{\"ReceiveDexData\":{\"DXS\":{\"RetailerCommunicationID\":\"1111111111\",\"FunctionalIdentifierCode\":\"DX\",\"VersionOrReleaseOrIndustryIdentifierCode\":\"004010UCS\",\"TransmissionControlNumber\":3,\"SupplierCommunicationID\":\"1111111111\",\"TestIndicator\":\"P\"},\"InvoiceList\":[{\"Invoice Status\":{\"InvoiceNumber\":\"80010000080037000002\",\"Status\":\"Adjusted\"},\"ST\":{\"TransactionSetID\":\"895\",\"TransactionSetControlNumber\":2},\"G87\":{\"InitiatorCode\":\"R\",\"CreditDebitFlag\":\"D\",\"SupplierDeliveryReturnNumber\":\"80010000080037000002\",\"IntegrityCheckValue\":\"B837\",\"AdjustmentNumber\":1},\"G89\":[{\"SequenceNumber\":1,\"Quantity\":30.0},{\"SequenceNumber\":2,\"ItemListCost\":2.22},{\"SequenceNumber\":3,\"G72\":[{\"AllowanceCode\":\"96\",\"MethodOfHandling\":\"12\",\"AllowanceNumber\":\"REMOVE\"},{\"AllowanceCode\":\"97\",\"MethodOfHandling\":\"02\",\"AllowanceRate\":\"-.02\",\"AllowanceQuantity\":\"25\",\"UOMCode\":\"EA\"}]}],\"G84\":{\"TotalQuantity\":77.0,\"TotalInvoiceAmount\":293.78},\"G86\":{\"Signature\":\"5230\"},\"G85\":{\"IntegrityCheckValue\":\"E11C\"},\"SE\":{\"SegmentCount\":13,\"TransactionSetControlNumber\":2}}],\"DXE\":{\"TransmissionControlNumber\":3,\"NumberOfTransactionSetsIncluded\":1}}}"
         val jsonString894 = "{\n" +

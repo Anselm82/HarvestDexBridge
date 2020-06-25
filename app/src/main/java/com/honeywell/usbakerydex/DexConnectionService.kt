@@ -2,10 +2,11 @@ package com.honeywell.usbakerydex
 
 import android.app.*
 import android.content.*
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.*
 import android.graphics.Color
 import android.os.*
 import android.util.Log
+import android.util.Log.ERROR
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.honeywell.usbakerydex.dex.model.DEFAULT_DEX_VERSION
@@ -15,17 +16,14 @@ import com.honeywell.usbakerydex.versatile.VersatileConverter
 import com.honeywell.usbakerydex.versatile.model.VersatileDexMode
 import com.honeywell.usbakerydex.versatile.utils.cleanUCS
 import org.json.JSONObject
-import java.util.*
+import kotlin.math.log
 
 
 class DexConnectionService : Service() {
 
     companion object {
-        var registered = false
         const val CALLER_APP_ID = "callerAppID"
-
         const val EXTERNAL_EVENT_ACTION = "com.movilizer.client.android.EXT_EVENT"
-
         const val EVENT_SEND = 7363
         const val EVENT_RECEIVE = 7328
         const val EVENT_FINISHED = 721
@@ -40,31 +38,42 @@ class DexConnectionService : Service() {
 
     var messenger: Messenger? = null
     var connection: ServiceConnection? = null
-
+    var eventSourceId: Int = 0
     var errorCode = 0L
     var errorMessage = ""
-
     var callMe: CallMe? = null
 
     lateinit var honeywellDexRequest: DEXTransmission
-
-    var eventSourceId: Int = 0
-
     lateinit var result : String
 
+    inner class IntentBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i("DEX", "ACTION: " + intent?.action)
+            if (intent?.action.equals(ACTION_DEX_FINISHED)) {
+                handleIntent(intent!!)
+                Log.i("DEX", "receiver")
+            }
+        }
+    }
+
+    var broadcastReceiver : IntentBroadcastReceiver? = null
+    /*
     private val mBroadcastReceiver: BroadcastReceiver?
         get() {
             return object : BroadcastReceiver() {
                 override fun onReceive(p0: Context?, intent: Intent?) {
                     if (intent?.action.equals(ACTION_DEX_FINISHED)) {
                         handleIntent(intent!!)
+                        Log.i("DEX", "receiver")
                     }
                 }
             }
         }
+    */
 
     fun handleIntent(intent: Intent) {
         //get data from intent
+        Log.i("DEX", "handleIntent")
         val mode = intent.getIntExtra("mode", 0)
         val status = intent.getIntExtra("status", -99)
         val lic_status = intent.getIntExtra("lic_status", -99)
@@ -84,23 +93,33 @@ class DexConnectionService : Service() {
         if (days_remaining < 4) {
             //license is not active
         }
-        if(status == 0 || status > 94) {
+        if(status == 0) {
             try {
                 val response = VersatileConverter.toVersatileDexResponse(
                     sResults,
                     honeywellDexRequest.configuration.retailer?.dexVersion?.cleanUCS()?.toInt()
                         ?: DEFAULT_DEX_VERSION.toInt()
                 )
+                    val result = honeywellDexRequest.buildResponse(response)
+                    this.result = result.toHoneywell() ?: "No result"
+                    this.eventSourceId = EVENT_RECEIVE
+                    callMe?.connectionNotifier?.isConnected = true
+                    callMe?.connectionNotifier?.doWork()
+
+            } catch(e: Exception) {
+            }
+        } else if(status == 95) {
+            val response = VersatileConverter.toVersatileDexResponse(
+                sResults,
+                honeywellDexRequest.configuration.retailer?.dexVersion?.cleanUCS()?.toInt()
+                    ?: DEFAULT_DEX_VERSION.toInt()
+            )
+            if(response.invoices().size > 1) {
                 val result = honeywellDexRequest.buildResponse(response)
                 this.result = result.toHoneywell() ?: "No result"
                 this.eventSourceId = EVENT_RECEIVE
                 callMe?.connectionNotifier?.isConnected = true
                 callMe?.connectionNotifier?.doWork()
-            } catch(e: Exception) {
-                Log.e("ERROR", e.message)
-            } finally {
-                closeDex()
-                this.stopSelf()
             }
         }
     }
@@ -135,37 +154,41 @@ class DexConnectionService : Service() {
             stopSelf()
             throw th
         }
-        stopSelf()
     }
 
     override fun onCreate() {
         super.onCreate()
+        Log.i("DEX", "onCreate")
         handleStart()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun startNewForegroundNotification() {
-        val channelName = "Harvest Food Solutions DEX Service"
-        val chan = NotificationChannel(
-            App.CHANNEL_ID,
-            channelName,
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        chan.lightColor = Color.BLUE
-        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        val manager =
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-        manager.createNotificationChannel(chan)
+        try {
+            val channelName = "Harvest Food Solutions DEX Service"
+            val chan = NotificationChannel(
+                App.CHANNEL_ID,
+                channelName,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            chan.lightColor = Color.BLUE
+            chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            val manager =
+                (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            manager.createNotificationChannel(chan)
 
-        val notificationBuilder =
-            NotificationCompat.Builder(this, App.CHANNEL_ID)
-        val notification: Notification = notificationBuilder.setOngoing(true)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Harvest Food Solutions DEX Service")
-            .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
-        startForeground(2, notification)
+            val notificationBuilder =
+                NotificationCompat.Builder(this, App.CHANNEL_ID)
+            val notification: Notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Harvest Food Solutions DEX Service")
+                .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build()
+            startForeground(2, notification)
+        } catch (e: java.lang.Exception) {
+            Log.e("ERROR", e.message)
+        }
     }
 
     private fun startForegroundNotification() {
@@ -185,22 +208,22 @@ class DexConnectionService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        closeDex()
-        if (mBroadcastReceiver != null && registered) {
-            unregisterReceiver(mBroadcastReceiver)
-            registered = false
-            stopSelf()
+        if (broadcastReceiver != null) {
+            connection?.let { unbindService(it) }
+            applicationContext.unregisterReceiver(broadcastReceiver)
         }
+        super.onDestroy()
+        Log.i("DEX", "onDestroy")
     }
 
     private fun build(mode: VersatileDexMode, content: String? = null): Intent {
-        val intent = Intent(Intent.ACTION_SEND)
+        val intent = Intent(ACTION_SEND)
         intent.type = SEND_TYPE
         intent.`package` = DEX_APP_PKG_NAME
         intent.putExtra(DEX_MODE, mode.value)
         if (!content.isNullOrBlank())
             intent.putExtra(Intent.EXTRA_TEXT, content)
+        Log.i("DEX", "build")
         return intent
     }
 
@@ -219,24 +242,13 @@ class DexConnectionService : Service() {
         startActivity(intent)
     }
 
-    fun closeDex() {
-        val pids = (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses
-        var processid = 0
-        for (i in 0 until pids.size) {
-            val info = pids[i]
-            if (info.processName.equals(DEX_APP_PKG_NAME, ignoreCase = true)) {
-                processid = info.pid
-            }
-        }
-        Process.killProcess(processid)
-    }
-
     fun launchDEX() {
+        Log.i("DEX", "broadcast " + (broadcastReceiver != null))
         val data = getRouteData()
-        Log.i("Versatile", data)
         val intent = build(VersatileDexMode.ACTION_START_DEX, data)
         intent.flags = FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        Log.i("DEX", "launchDEX")
     }
 
     private class IncomingHandler() : Handler() {
@@ -245,20 +257,23 @@ class DexConnectionService : Service() {
 
     private fun handleStart() {
         val filter = IntentFilter(ACTION_DEX_FINISHED)
+        if(broadcastReceiver == null) {
+            broadcastReceiver = IntentBroadcastReceiver()
+        }
+        applicationContext.registerReceiver(broadcastReceiver, filter)
         this.connection = RemoteServiceConnection()
         this.callMe = CallMe()
-        registerReceiver(mBroadcastReceiver, filter)
-        registered = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startNewForegroundNotification()
         else
             startForegroundNotification()
+        Log.i("DEX", "handleStart")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         setDexParams(intent, startId)
-        handleStart()
+        Log.i("DEX", "onStartCommand")
         return START_NOT_STICKY
     }
 
@@ -268,14 +283,12 @@ class DexConnectionService : Service() {
         val newIntent = Intent(EXTERNAL_EVENT_ACTION)
         if (intent.hasExtra("JSON")) {
             jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
-            Log.d("DEX", jsonObject.toString())
             honeywellDexRequest = DEXTransmission.Builder()
                 .with(HoneywellParser.readConfiguration(jsonObject)!!)
                 .with(HoneywellParser.readInitialization(jsonObject)!!)
                 .with(HoneywellParser.readTransaction(jsonObject)!!).build()
             newIntent.setPackage(stringExtra)
             eventSourceId = honeywellDexRequest.initialization.eventSourceId
-            Log.d("DEX", honeywellDexRequest.transaction.toString())
             newIntent.putExtra("evtSrcId", eventSourceId)
             bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
         }

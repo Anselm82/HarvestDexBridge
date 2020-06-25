@@ -458,8 +458,17 @@ class DEXTransmission private constructor(
     }
 
     private fun g88(it: InnerRecord): ExtraInformation? {
-        val g82 = it.identifier as G82
-        return G88( g82.physicalDeliveryOrReturnDate, g82.productOwnershipTransferDate, g82.purchaseOrderNumber, g82.purchaseOrderDate, g82.receiverLocationNumber)
+        if(it.identifier is G82) {
+            val g82 = it.identifier as G82
+            return G88(
+                g82.physicalDeliveryOrReturnDate,
+                g82.productOwnershipTransferDate,
+                g82.purchaseOrderNumber,
+                g82.purchaseOrderDate,
+                g82.receiverLocationNumber
+            )
+        }
+        return null
     }
 
     private fun g82Tog87(
@@ -485,7 +494,7 @@ class DEXTransmission private constructor(
         this.transaction.recordList.forEach {
             var identifier = it.identifier as G87
             val invoiceNumber = identifier.supplierDeliveryOrReturnNumber ?: identifier.receiverDeliveryOrReturnNumber
-            val extra = it.extraInformation as G88
+            //val extra = it.extraInformation as G88
             val invoiceStatus = response?.status(invoiceNumber!!)
             val isAdjusted = invoiceStatus?.toInt() != VersatileResponseInvoiceStatus.CLOSED.value
             val g89s = mutableListOf<G89Block>()
