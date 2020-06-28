@@ -2,11 +2,11 @@ package com.honeywell.usbakerydex
 
 import android.app.*
 import android.content.*
-import android.content.Intent.*
+import android.content.Intent.ACTION_SEND
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.Color
 import android.os.*
 import android.util.Log
-import android.util.Log.ERROR
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.honeywell.usbakerydex.dex.model.DEFAULT_DEX_VERSION
@@ -16,7 +16,6 @@ import com.honeywell.usbakerydex.versatile.VersatileConverter
 import com.honeywell.usbakerydex.versatile.model.VersatileDexMode
 import com.honeywell.usbakerydex.versatile.utils.cleanUCS
 import org.json.JSONObject
-import kotlin.math.log
 
 
 class DexConnectionService : Service() {
@@ -42,6 +41,7 @@ class DexConnectionService : Service() {
     var errorCode = 0L
     var errorMessage = ""
     var callMe: CallMe? = null
+    var registered = false
 
     lateinit var honeywellDexRequest: DEXTransmission
     lateinit var result : String
@@ -57,7 +57,7 @@ class DexConnectionService : Service() {
     }
 
     var broadcastReceiver : IntentBroadcastReceiver? = null
-    /*
+
     private val mBroadcastReceiver: BroadcastReceiver?
         get() {
             return object : BroadcastReceiver() {
@@ -69,7 +69,7 @@ class DexConnectionService : Service() {
                 }
             }
         }
-    */
+
 
     fun handleIntent(intent: Intent) {
         //get data from intent
@@ -102,11 +102,12 @@ class DexConnectionService : Service() {
                 )
                     val result = honeywellDexRequest.buildResponse(response)
                     this.result = result.toHoneywell() ?: "No result"
+                    print(this.result)
                     this.eventSourceId = EVENT_RECEIVE
                     callMe?.connectionNotifier?.isConnected = true
                     callMe?.connectionNotifier?.doWork()
-
             } catch(e: Exception) {
+                Log.e("Error", e.message ?: "No message")
             }
         } else if(status == 95) {
             val response = VersatileConverter.toVersatileDexResponse(
@@ -117,6 +118,7 @@ class DexConnectionService : Service() {
             if(response.invoices().size > 1) {
                 val result = honeywellDexRequest.buildResponse(response)
                 this.result = result.toHoneywell() ?: "No result"
+                print(this.result)
                 this.eventSourceId = EVENT_RECEIVE
                 callMe?.connectionNotifier?.isConnected = true
                 callMe?.connectionNotifier?.doWork()
@@ -160,6 +162,7 @@ class DexConnectionService : Service() {
         super.onCreate()
         Log.i("DEX", "onCreate")
         handleStart()
+        startForegroundNotification()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -177,8 +180,14 @@ class DexConnectionService : Service() {
                 (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             manager.createNotificationChannel(chan)
 
+            val data = getRouteData()
+            val intent = build(VersatileDexMode.ACTION_START_DEX, data)
+            intent.flags = FLAG_ACTIVITY_NEW_TASK
+            val resultPendingIntent : PendingIntent? = PendingIntent.getActivity(
+                applicationContext, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val notificationBuilder =
-                NotificationCompat.Builder(this, App.CHANNEL_ID)
+                NotificationCompat.Builder(this, App.CHANNEL_ID).setContentIntent(resultPendingIntent
+                )
             val notification: Notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Harvest Food Solutions DEX Service")
@@ -210,7 +219,8 @@ class DexConnectionService : Service() {
     override fun onDestroy() {
         if (broadcastReceiver != null) {
             connection?.let { unbindService(it) }
-            applicationContext.unregisterReceiver(broadcastReceiver)
+            unregisterReceiver(broadcastReceiver)
+            registered = false
         }
         super.onDestroy()
         Log.i("DEX", "onDestroy")
@@ -247,6 +257,8 @@ class DexConnectionService : Service() {
         val data = getRouteData()
         val intent = build(VersatileDexMode.ACTION_START_DEX, data)
         intent.flags = FLAG_ACTIVITY_NEW_TASK
+        val resultPendingIntent : PendingIntent? = PendingIntent.getActivity(
+            applicationContext, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         startActivity(intent)
         Log.i("DEX", "launchDEX")
     }
@@ -260,7 +272,10 @@ class DexConnectionService : Service() {
         if(broadcastReceiver == null) {
             broadcastReceiver = IntentBroadcastReceiver()
         }
-        applicationContext.registerReceiver(broadcastReceiver, filter)
+        if(!registered) {
+            registerReceiver(broadcastReceiver, filter)
+            registered = true
+        }
         this.connection = RemoteServiceConnection()
         this.callMe = CallMe()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -272,6 +287,7 @@ class DexConnectionService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        handleStart()
         setDexParams(intent, startId)
         Log.i("DEX", "onStartCommand")
         return START_NOT_STICKY
@@ -292,6 +308,7 @@ class DexConnectionService : Service() {
             newIntent.putExtra("evtSrcId", eventSourceId)
             bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
         }
+        Log.i("DEX", "setDexParams")
     }
 
     inner class RemoteServiceConnection internal constructor() : ServiceConnection {
@@ -346,6 +363,12 @@ class DexConnectionService : Service() {
                     Log.i("DEX", eventSourceId.toString())
                     if (this@DexConnectionService.eventSourceId == EVENT_SEND) {
                         Log.i("DEX", "Launching Dex.")
+                        if(broadcastReceiver == null)
+                            broadcastReceiver = IntentBroadcastReceiver()
+                        if(!registered) {
+                            registerReceiver(broadcastReceiver, IntentFilter(ACTION_DEX_FINISHED))
+                            registered = true
+                        }
                         launchDEX()
                         //RECEIVE
                     } else if (this@DexConnectionService.eventSourceId == EVENT_RECEIVE) {
