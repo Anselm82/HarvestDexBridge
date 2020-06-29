@@ -1,18 +1,13 @@
 package com.honeywell.usbakerydex
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Build
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import com.honeywell.usbakerydex.dex.model.DEXTransmission
-import com.honeywell.usbakerydex.dex.model.DEXTransmission.Builder
-import com.honeywell.usbakerydex.honeywell.HoneywellParser
-import com.honeywell.usbakerydex.versatile.VersatileConverter
-import com.honeywell.usbakerydex.versatile.model.VersatileDexMode
-import org.json.JSONObject
 
 class MainActivity : Activity() {
 
@@ -44,8 +39,8 @@ class MainActivity : Activity() {
                 "DESC \"2 PK Sausage Pizza\"\n" +
                 "QUANT 30\n" +
                 "PRICE 11.79"
-        const val jsonString895 = "{\"ReceiveDexData\":{\"DXS\":{\"RetailerCommunicationID\":\"1111111111\",\"FunctionalIdentifierCode\":\"DX\",\"VersionOrReleaseOrIndustryIdentifierCode\":\"004010UCS\",\"TransmissionControlNumber\":3,\"SupplierCommunicationID\":\"1111111111\",\"TestIndicator\":\"P\"},\"InvoiceList\":[{\"Invoice Status\":{\"InvoiceNumber\":\"80010000080037000002\",\"Status\":\"Adjusted\"},\"ST\":{\"TransactionSetID\":\"895\",\"TransactionSetControlNumber\":2},\"G87\":{\"InitiatorCode\":\"R\",\"CreditDebitFlag\":\"D\",\"SupplierDeliveryReturnNumber\":\"80010000080037000002\",\"IntegrityCheckValue\":\"B837\",\"AdjustmentNumber\":1},\"G89\":[{\"SequenceNumber\":1,\"Quantity\":30.0},{\"SequenceNumber\":2,\"ItemListCost\":2.22},{\"SequenceNumber\":3,\"G72\":[{\"AllowanceCode\":\"96\",\"MethodOfHandling\":\"12\",\"AllowanceNumber\":\"REMOVE\"},{\"AllowanceCode\":\"97\",\"MethodOfHandling\":\"02\",\"AllowanceRate\":\"-.02\",\"AllowanceQuantity\":\"25\",\"UOMCode\":\"EA\"}]}],\"G84\":{\"TotalQuantity\":77.0,\"TotalInvoiceAmount\":293.78},\"G86\":{\"Signature\":\"5230\"},\"G85\":{\"IntegrityCheckValue\":\"E11C\"},\"SE\":{\"SegmentCount\":13,\"TransactionSetControlNumber\":2}}],\"DXE\":{\"TransmissionControlNumber\":3,\"NumberOfTransactionSetsIncluded\":1}}}"
-        const val jsonString894 = "{\n" +
+        const val HONEYWELL_RESPONSE = "{\"ReceiveDexData\":{\"DXS\":{\"RetailerCommunicationID\":\"1111111111\",\"FunctionalIdentifierCode\":\"DX\",\"VersionOrReleaseOrIndustryIdentifierCode\":\"004010UCS\",\"TransmissionControlNumber\":3,\"SupplierCommunicationID\":\"1111111111\",\"TestIndicator\":\"P\"},\"InvoiceList\":[{\"Invoice Status\":{\"InvoiceNumber\":\"80010000080037000002\",\"Status\":\"Adjusted\"},\"ST\":{\"TransactionSetID\":\"895\",\"TransactionSetControlNumber\":2},\"G87\":{\"InitiatorCode\":\"R\",\"CreditDebitFlag\":\"D\",\"SupplierDeliveryReturnNumber\":\"80010000080037000002\",\"IntegrityCheckValue\":\"B837\",\"AdjustmentNumber\":1},\"G89\":[{\"SequenceNumber\":1,\"Quantity\":30.0},{\"SequenceNumber\":2,\"ItemListCost\":2.22},{\"SequenceNumber\":3,\"G72\":[{\"AllowanceCode\":\"96\",\"MethodOfHandling\":\"12\",\"AllowanceNumber\":\"REMOVE\"},{\"AllowanceCode\":\"97\",\"MethodOfHandling\":\"02\",\"AllowanceRate\":\"-.02\",\"AllowanceQuantity\":\"25\",\"UOMCode\":\"EA\"}]}],\"G84\":{\"TotalQuantity\":77.0,\"TotalInvoiceAmount\":293.78},\"G86\":{\"Signature\":\"5230\"},\"G85\":{\"IntegrityCheckValue\":\"E11C\"},\"SE\":{\"SegmentCount\":13,\"TransactionSetControlNumber\":2}}],\"DXE\":{\"TransmissionControlNumber\":3,\"NumberOfTransactionSetsIncluded\":1}}}"
+        const val HONEYWELL_REQUEST = "{\n" +
                 "\t\"CONFIG\": \n" +
                 "\t{\n" +
                 "\t\t\"RETAILER\":\n" +
@@ -163,87 +158,93 @@ class MainActivity : Activity() {
                 "}"
     }
 
-    var connection: ServiceConnection? = null
-    var eventSourceId: Int = 0
-    lateinit var jsonObject: JSONObject
-    lateinit var honeywellDexRequest: DEXTransmission
-
-    fun launchDEX() {
-        Log.e("${ServiceToCallActivity.index++}", "launchDex")
-        val data = getData()
-        if(!data.isNullOrBlank()) {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = DexConnectionService.SEND_TYPE
-            intent.`package` = DexConnectionService.DEX_APP_PKG_NAME
-            intent.putExtra(DexConnectionService.DEX_MODE, VersatileDexMode.ACTION_START_DEX.value)
-            if (!data.isNullOrBlank())
-                intent.putExtra(Intent.EXTRA_TEXT, data)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            Log.e("${ServiceToCallActivity.index++}", "launched Dex")
-        }
-    }
-
-    private fun getData(): String? {
-        if(this.intent != null && intent.hasExtra(DexConnectionService.CALLER_APP_ID)) {
-            val stringExtra: String = intent!!.getStringExtra(DexConnectionService.CALLER_APP_ID)!!
-            val newIntent = Intent(DexConnectionService.EXTERNAL_EVENT_ACTION)
-            if (intent.hasExtra("JSON")) {
-                jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
-                honeywellDexRequest = Builder()
-                    .with(HoneywellParser.readConfiguration(jsonObject)!!)
-                    .with(HoneywellParser.readInitialization(jsonObject)!!)
-                    .with(HoneywellParser.readTransaction(jsonObject)!!).build()
-                newIntent.setPackage(stringExtra)
-                eventSourceId = honeywellDexRequest.initialization.eventSourceId
-                newIntent.putExtra("evtSrcId", eventSourceId)
-//            bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
-                return honeywellDexRequest.toVersatile()
-            }
-            return ""
-        }
-        return ""
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        //launchDEX()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        //launchDEX()
-    }
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //launchDEX()
         finish()
+    }*/
 
-        //finishAndRemoveTask()
 
-        //moveTaskToBack(true)
 
-        /*
 
-        val json = JSONObject(jsonString894)
+    private lateinit var mServiceIntent : Intent
+    lateinit var service : ServiceToCallActivity
 
-        val dexTransmission = Builder()
-            .with(HoneywellParser.readConfiguration(json)!!)
-            .with(HoneywellParser.readInitialization(json)!!)
-            .with(HoneywellParser.readTransaction(json)!!).build()
+    lateinit var ctx : Context
 
-        val versatile = dexTransmission.toVersatile()
-        print(versatile)
-        val versatileDexResponseString = "140701:015830 894:USR 1007 ADJ_QTY 2 1 2\n" +
-                "140701:015831 894:USR 1007 ADJ_QTY 4 1 4\n" +
-                "140701:015832 895:SVR 1007 ADJ_LOCATION 102 100\n" +
-                "140701:015832 895:USR 1007 INVC_STATUS 3"
-        val result = VersatileConverter.toVersatileDexResponse(versatileDexResponseString, 5010)
-        result.lines.forEach { item -> print(item.toString()) }
-        val dexTransmissionResponse = dexTransmission.buildResponse(result)
-        val response = dexTransmissionResponse.toHoneywell()
-        print(response)
-        */
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        if (!isTaskRoot()) {
+            // Android launched another instance of the root activity into an existing task
+            //  so just quietly finish and go away, dropping the user back into the activity
+            //  at the top of the stack (ie: the last state of this task)
+            finish();
+            return;
+        }
+        super.onCreate(savedInstanceState)
+        ctx = this
+        setContentView(R.layout.activity_main)
+        service = ServiceToCallActivity()
+        mServiceIntent = Intent(ctx, ServiceToCallActivity::class.java)
+        if (!isMyServiceRunning(service.javaClass)) {
+            startService(mServiceIntent)
+            registerReceiver(mBroadcastReceiver, IntentFilter(DexConnectionService.ACTION_DEX_FINISHED))
+        }
+        moveTaskToBack(true)
+    }
+
+    private fun isMyServiceRunning(serviceClass: Class<*>) : Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for(service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                Log.i("isMyServiceRunning?", "" + true)
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(mBroadcastReceiver)
+        stopService(mServiceIntent)
+
+        Log.i("MAINACT", "onDestroy!")
+        super.onDestroy()
+    }
+
+    val mBroadcastReceiver: BroadcastReceiver?
+        get() {
+            return object : BroadcastReceiver() {
+                override fun onReceive(p0: Context?, intent: Intent?) {
+                    if (intent?.action.equals(DexConnectionService.ACTION_DEX_FINISHED)) {
+                        handleIntent(intent!!)
+                        Log.i("DEX", "receiver")
+                    }
+                }
+            }
+        }
+
+    fun handleIntent(intent: Intent) {
+        //get data from intent
+        Log.i("DEX", "handleIntent")
+        val mode = intent.getIntExtra("mode", 0)
+        val status = intent.getIntExtra("status", -99)
+        val lic_status = intent.getIntExtra("lic_status", -99)
+        val days_remaining = intent.getIntExtra("lic_days_remaining", 0)
+        val comm_status = intent.getIntExtra("comm_status", -99)
+        val sResults = intent.getStringExtra("results")
+        val sActivity = intent.getStringExtra("activity")
+        //check values of concern
+        if (status != 0) {
+            //operation failed
+        }
+        if (lic_status != 0) {
+            //license is not active
+        }
+        //if this value < 15, refreshing might be failing?
+        //if it gets down to 3, you should intervene if expecting it to be higher
+        if (days_remaining < 4) {
+            //license is not active
+        }
     }
 }

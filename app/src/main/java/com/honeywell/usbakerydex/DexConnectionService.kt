@@ -2,8 +2,7 @@ package com.honeywell.usbakerydex
 
 import android.app.*
 import android.content.*
-import android.content.Intent.ACTION_SEND
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.*
 import android.graphics.Color
 import android.os.*
 import android.util.Log
@@ -153,7 +152,7 @@ class DexConnectionService : Service() {
             this.messenger?.send(obtain)
         } catch (e2: RemoteException) {
         } catch (th: Throwable) {
-            stopSelf()
+            //stopSelf()
             throw th
         }
     }
@@ -257,8 +256,7 @@ class DexConnectionService : Service() {
         val data = getRouteData()
         val intent = build(VersatileDexMode.ACTION_START_DEX, data)
         intent.flags = FLAG_ACTIVITY_NEW_TASK
-        val resultPendingIntent : PendingIntent? = PendingIntent.getActivity(
-            applicationContext, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        intent.addFlags(FLAG_ACTIVITY_REORDER_TO_FRONT)
         startActivity(intent)
         Log.i("DEX", "launchDEX")
     }
