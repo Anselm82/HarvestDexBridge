@@ -293,20 +293,22 @@ class DexConnectionService : Service() {
 
 
     private fun setDexParams(intent: Intent?, i: Int) {
-        val stringExtra: String = intent!!.getStringExtra(CALLER_APP_ID)!!
-        val newIntent = Intent(EXTERNAL_EVENT_ACTION)
-        if (intent.hasExtra("JSON")) {
-            jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
-            honeywellDexRequest = DEXTransmission.Builder()
-                .with(HoneywellParser.readConfiguration(jsonObject)!!)
-                .with(HoneywellParser.readInitialization(jsonObject)!!)
-                .with(HoneywellParser.readTransaction(jsonObject)!!).build()
-            newIntent.setPackage(stringExtra)
-            eventSourceId = honeywellDexRequest.initialization.eventSourceId
-            newIntent.putExtra("evtSrcId", eventSourceId)
-            bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
+        if(intent?.hasExtra(CALLER_APP_ID) == true) {
+            val stringExtra: String = intent!!.getStringExtra(CALLER_APP_ID)!!
+            val newIntent = Intent(EXTERNAL_EVENT_ACTION)
+            if (intent.hasExtra("JSON")) {
+                jsonObject = JSONObject(intent.getStringExtra("JSON")!!)
+                honeywellDexRequest = DEXTransmission.Builder()
+                    .with(HoneywellParser.readConfiguration(jsonObject)!!)
+                    .with(HoneywellParser.readInitialization(jsonObject)!!)
+                    .with(HoneywellParser.readTransaction(jsonObject)!!).build()
+                newIntent.setPackage(stringExtra)
+                eventSourceId = honeywellDexRequest.initialization.eventSourceId
+                newIntent.putExtra("evtSrcId", eventSourceId)
+                bindService(newIntent, connection!!, Context.BIND_AUTO_CREATE)
+            }
+            Log.i("DEX", "setDexParams")
         }
-        Log.i("DEX", "setDexParams")
     }
 
     inner class RemoteServiceConnection internal constructor() : ServiceConnection {

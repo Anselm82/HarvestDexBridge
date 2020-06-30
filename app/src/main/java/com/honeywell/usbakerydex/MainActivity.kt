@@ -168,13 +168,13 @@ class MainActivity : Activity() {
 
 
     private lateinit var mServiceIntent : Intent
-    lateinit var service : ServiceToCallActivity
+    lateinit var service : DexConnectionService
 
     lateinit var ctx : Context
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!isTaskRoot()) {
+        if (!isTaskRoot) {
             // Android launched another instance of the root activity into an existing task
             //  so just quietly finish and go away, dropping the user back into the activity
             //  at the top of the stack (ie: the last state of this task)
@@ -184,8 +184,8 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         ctx = this
         setContentView(R.layout.activity_main)
-        service = ServiceToCallActivity()
-        mServiceIntent = Intent(ctx, ServiceToCallActivity::class.java)
+        service = DexConnectionService()
+        mServiceIntent = Intent(ctx, DexConnectionService::class.java)
         if (!isMyServiceRunning(service.javaClass)) {
             startService(mServiceIntent)
             registerReceiver(mBroadcastReceiver, IntentFilter(DexConnectionService.ACTION_DEX_FINISHED))

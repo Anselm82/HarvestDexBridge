@@ -18,7 +18,7 @@
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
-        <service android:name="com.honeywell.usbakerydex.ServiceToCallActivity" android:enabled="true" android:exported="true" android:process=":remote">
+        <!--service android:name="com.honeywell.usbakerydex.ServiceToCallActivity" android:enabled="true" android:exported="true" android:process=":remote">
             <intent-filter>
                 <action android:name="com.honeywell.usbakerydex"/>
             </intent-filter>
@@ -28,11 +28,11 @@
             android:enabled="true"
             android:exported="true"
             android:label="RestartServiceWhenStopped">
-        </receiver>
-        <!--service android:name="com.honeywell.usbakerydex.DexConnectionService" android:enabled="true" android:exported="true" android:process=":remote">
+        </receiver-->
+        <service android:name="com.honeywell.usbakerydex.DexConnectionService" android:enabled="true" android:exported="true" >
             <intent-filter>
                 <action android:name="com.honeywell.usbakerydex"/>
             </intent-filter>
-        </service-->
+        </service>
     </application>
 </manifest>

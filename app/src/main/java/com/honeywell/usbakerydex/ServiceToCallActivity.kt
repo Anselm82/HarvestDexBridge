@@ -20,7 +20,10 @@ class ServiceToCallActivity : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        launchDEX()
+        Thread(Runnable {
+            launchDEX()
+        }).start()
+
         return START_NOT_STICKY
     }
 
