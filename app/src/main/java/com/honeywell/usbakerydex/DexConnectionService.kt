@@ -176,9 +176,13 @@ class DexConnectionService : Service() {
             val manager =
                 (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             manager.createNotificationChannel(chan)
-
+            val data = getRouteData()
+            val intent = build(VersatileDexMode.ACTION_START_DEX, data)
+            intent.flags = FLAG_ACTIVITY_NEW_TASK
+            val pendingIntent = PendingIntent.getActivities(this, 0, arrayOf(intent), PendingIntent.FLAG_UPDATE_CURRENT)
             val notificationBuilder =
                 NotificationCompat.Builder(this, App.CHANNEL_ID)
+                    .setContentIntent(pendingIntent)
             val notification: Notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Harvest Food Solutions DEX Service")
@@ -192,17 +196,22 @@ class DexConnectionService : Service() {
     }
 
     private fun startForegroundNotification() {
+        val data = getRouteData()
+        val intent = build(VersatileDexMode.ACTION_START_DEX, data)
+        intent.flags = FLAG_ACTIVITY_NEW_TASK
+        val pendingIntent = PendingIntent.getActivities(this, 0, arrayOf(intent), PendingIntent.FLAG_UPDATE_CURRENT)
+
         startForeground(
             1, NotificationCompat.Builder(this, App.CHANNEL_ID)
                 .setContentTitle("Harvest Food Solutions DEX Service").setContentText("Running...")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentIntent(
-                    PendingIntent.getActivity(
+                .setContentIntent( pendingIntent
+                    /*PendingIntent.getActivity(
                         this,
                         0,
                         Intent(this, MainActivity::class.java),
                         0
-                    )
+                    )*/
                 ).build()
         )
     }
@@ -247,9 +256,11 @@ class DexConnectionService : Service() {
         val data = getRouteData()
         val intent = build(VersatileDexMode.ACTION_START_DEX, data)
         intent.flags = FLAG_ACTIVITY_NEW_TASK
+
         startActivity(intent)
         Log.i("DEX", "launchDEX")
     }
+
 
     private class IncomingHandler() : Handler() {
         override fun handleMessage(message: Message) {}
@@ -273,6 +284,7 @@ class DexConnectionService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         setDexParams(intent, startId)
+        handleStart()
         Log.i("DEX", "onStartCommand")
         return START_NOT_STICKY
     }
